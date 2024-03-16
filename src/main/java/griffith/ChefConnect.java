@@ -93,8 +93,16 @@ public class ChefConnect {
         return "I'm sorry, I didn't understand your request. Could you please provide more details?";
     }
 	
-	public static String provideNutritionalInfo(String userInput) {
-		return "";
+	public static String provideNutritionalInfo(String ingredient) {
+		if (nutritionalInfo.containsKey(ingredient)) {
+            Map<String, String> nutrition = nutritionalInfo.get(ingredient);
+            System.out.println("Nutritional Information for " + ingredient + ":");
+            for (Map.Entry<String, String> entry : nutrition.entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+        } else {
+            System.out.println("Nutritional information for " + ingredient + " is not available.");
+        }
 	}
 
 }
