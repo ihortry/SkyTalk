@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 public class ChefConnect {
     private static final Map<String, List<String>> ingredientMap = new HashMap<>();
     private static final Map<String, Map<String, String>> nutritionalInfo = new HashMap<>();
-    private static final Map<String, String> favoriteRecipes = new HashMap<>();
     
     public static void initializeIngredients() {
         // Initialize ingredients (for demonstration)
@@ -80,14 +79,6 @@ public class ChefConnect {
 //			return suggestRecipe(dish);
         }
 
-        Pattern favoritePattern = Pattern.compile("\\b(favorite|save)\\b");
-        Matcher favoriteMatcher = favoritePattern.matcher(userInput);
-
-        if (favoriteMatcher.find()) {
-//           saveFavoriteRecipe(userInput);
-            return "Recipe saved to favorites.";
-        }
-
         Pattern nutritionPattern = Pattern.compile("\\b(nutrition|nutritional info)\\b");
         Matcher nutritionMatcher = nutritionPattern.matcher(userInput);
 
@@ -95,15 +86,7 @@ public class ChefConnect {
         	System.out.println("Enter the name of the dish: ");
         	Scanner input = new Scanner(System.in);
         	String dish = input.nextLine();
-//        	provideNutritionalInfo(dish);
-            return ""; // Response handled within the method
-        }
-
-        Pattern convertPattern = Pattern.compile("\\b(convert|quantity)\\b");
-        Matcher convertMatcher = convertPattern.matcher(userInput);
-
-        if (convertMatcher.find()) {
-//            convertIngredientQuantity(userInput);
+//          provideNutritionalInfo(dish);
             return ""; // Response handled within the method
         }
 
