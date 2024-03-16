@@ -6,10 +6,14 @@
 
 package griffith;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChefConnect {
     private static final Map<String, List<String>> ingredientMap = new HashMap<>();
@@ -47,6 +51,63 @@ public class ChefConnect {
 	public static void main(String[] args) {
 		initializeIngredients();
         initializeNutritionalInfo();
+        
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Welcome to Cooking Helper Chatbot! How can I assist you today?");
+
+        while (true) {
+            String userInput = scanner.nextLine().toLowerCase();
+            if (userInput.equals("exit")) {
+                System.out.println("Exiting Cooking Helper Chatbot. Have a great day!");
+                break;
+            } else {
+                String response = generateResponse(userInput);
+                System.out.println(response);
+            }
+        }
+
+        scanner.close();
 	}
+	
+	public static String generateResponse(String userInput) {
+        Pattern recipePattern = Pattern.compile("\\b(recipe|cook|make|prepare)\\b");
+        Matcher recipeMatcher = recipePattern.matcher(userInput);
+
+        if (recipeMatcher.find()) {
+        	System.out.println("Enter the name of the dish: ");
+        	Scanner input = new Scanner(System.in);
+        	String dish = input.nextLine();
+//			return suggestRecipe(dish);
+        }
+
+        Pattern favoritePattern = Pattern.compile("\\b(favorite|save)\\b");
+        Matcher favoriteMatcher = favoritePattern.matcher(userInput);
+
+        if (favoriteMatcher.find()) {
+//           saveFavoriteRecipe(userInput);
+            return "Recipe saved to favorites.";
+        }
+
+        Pattern nutritionPattern = Pattern.compile("\\b(nutrition|nutritional info)\\b");
+        Matcher nutritionMatcher = nutritionPattern.matcher(userInput);
+
+        if (nutritionMatcher.find()) {
+        	System.out.println("Enter the name of the dish: ");
+        	Scanner input = new Scanner(System.in);
+        	String dish = input.nextLine();
+//        	provideNutritionalInfo(dish);
+            return ""; // Response handled within the method
+        }
+
+        Pattern convertPattern = Pattern.compile("\\b(convert|quantity)\\b");
+        Matcher convertMatcher = convertPattern.matcher(userInput);
+
+        if (convertMatcher.find()) {
+//            convertIngredientQuantity(userInput);
+            return ""; // Response handled within the method
+        }
+
+        return "I'm sorry, I didn't understand your request. Could you please provide more details?";
+    }
 
 }
