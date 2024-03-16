@@ -92,5 +92,9 @@ public class ChefConnect {
 
         return "I'm sorry, I didn't understand your request. Could you please provide more details?";
     }
+	
+	public static String provideNutritionalInfo(String userInput) {
+		return "";
+	}
 
 }
