@@ -6,14 +6,9 @@
 
 package griffith;
 
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,40 +22,7 @@ public class ChefConnect {
 	private static final String APP_ID = "b9576f7d";
 	private static final String APP_KEY = "d7a5d085107bf7dd9377ed2a4146576d";
 	
-	private static final Map<String, List<String>> ingredientMap = new HashMap<>();
-	private static final Map<String, Map<String, String>> nutritionalInfo = new HashMap<>();
-
-	public static void initializeIngredients() {
-		// Initialize ingredients (for demonstration)
-		ingredientMap.put("pasta", Arrays.asList("spaghetti", "penne", "linguine"));
-		ingredientMap.put("chicken", Arrays.asList("breast", "thigh", "wing"));
-		ingredientMap.put("vegetables", Arrays.asList("broccoli", "carrot", "bell pepper"));
-	}
-
-	public static void initializeNutritionalInfo() {
-		// Initialize nutritional info (for demonstration)
-		Map<String, String> pastaNutrition = new HashMap<>();
-		pastaNutrition.put("calories", "200");
-		pastaNutrition.put("protein", "8g");
-		pastaNutrition.put("fat", "1g");
-		nutritionalInfo.put("spaghetti", pastaNutrition);
-
-		Map<String, String> chickenNutrition = new HashMap<>();
-		chickenNutrition.put("calories", "150");
-		chickenNutrition.put("protein", "20g");
-		chickenNutrition.put("fat", "5g");
-		nutritionalInfo.put("breast", chickenNutrition);
-
-		Map<String, String> broccoliNutrition = new HashMap<>();
-		broccoliNutrition.put("calories", "50");
-		broccoliNutrition.put("protein", "3g");
-		broccoliNutrition.put("fat", "0.5g");
-		nutritionalInfo.put("broccoli", broccoliNutrition);
-	}
-
 	public static void main(String[] args) {
-		initializeIngredients();
-		initializeNutritionalInfo();
 
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Welcome to Cooking Helper Chatbot! How can I assist you today?");
@@ -104,39 +66,6 @@ public class ChefConnect {
 		return "I'm sorry, I didn't understand your request. Could you please provide more details?";
 	}
 
-	private static void provideNutritionalInfo(String userInput) {
-		boolean foundIngredient = false;
-		for (Map.Entry<String, List<String>> entry : ingredientMap.entrySet()) {
-			String category = entry.getKey();
-			List<String> ingredients = entry.getValue();
-			for (String ingredient : ingredients) {
-				if (userInput.contains(ingredient)) {
-					foundIngredient = true;
-					displayNutritionalInfo(ingredient);
-					break;
-				}
-			}
-			if (foundIngredient) {
-				break;
-			}
-		}
-		if (!foundIngredient) {
-			System.out.println("Could not find nutritional information for the specified ingredient.");
-		}
-	}
-
-	private static void displayNutritionalInfo(String ingredient) {
-		if (nutritionalInfo.containsKey(ingredient)) {
-			Map<String, String> nutrition = nutritionalInfo.get(ingredient);
-			System.out.println("Nutritional Information for " + ingredient + ":");
-			for (Map.Entry<String, String> entry : nutrition.entrySet()) {
-				System.out.println(entry.getKey() + ": " + entry.getValue());
-			}
-		} else {
-			System.out.println("Nutritional information for " + ingredient + " is not available.");
-		}
-	}
-	
     public static JsonNode getRootNode(String userInput) {
     	try {
     		// Make HTTP request to the recipe API
