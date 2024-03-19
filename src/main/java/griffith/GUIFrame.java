@@ -77,6 +77,10 @@ public class GUIFrame extends JFrame implements ActionListener{
 		
 	}
 	
+	private static void appendToTextArea(String text) {
+		ca.append("\nYou-->\n" + text + "\n");
+	}
+	
 	private static String getInput() {
 		String inputText = cf.getText();
 		// Clear the input field after capturing the text
