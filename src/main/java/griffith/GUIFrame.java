@@ -83,5 +83,16 @@ public class GUIFrame extends JFrame implements ActionListener{
 		cf.setText("");	
 		return inputText;
 	}
+	
+	public static String input() {
+		String userInput = null;
+		while (userInput == null) {
+			userInput = input;
+			System.out.println();
+		}
+		input = null;
+
+		return userInput;
+	}
 
 }
