@@ -94,5 +94,9 @@ public class GUIFrame extends JFrame implements ActionListener{
 
 		return userInput;
 	}
+	
+	public static void output(String s) {
+		ca.append("\nChatBot-->\n" + s + "\n");
+	}
 
 }
