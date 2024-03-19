@@ -17,6 +17,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 /**
  * @author Ihor Tryndey 3105023 , Oleksii Babii 3104904
  * Class RoundTextField which extends JTextField 
@@ -75,6 +77,11 @@ public class GUIFrame extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	private static String formatText(String input) {
+		String trimmedText = input.trim();
+		return WordUtils.wrap(trimmedText, 70);
 	}
 	
 	private static void appendToTextArea(String text) {
