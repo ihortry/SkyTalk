@@ -46,12 +46,7 @@ public class ChefConnect {
 			System.out.println("Enter the name of the dish: ");
 			Scanner input = new Scanner(System.in);
 			String dish = input.nextLine();
-			try {
-				return suggestRecipe(dish);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			return suggestRecipe(dish);
 		}
 
 		Pattern nutritionPattern = Pattern.compile("\\b(nutrition|nutritional info)\\b");
@@ -68,7 +63,7 @@ public class ChefConnect {
 		return "I'm sorry, I didn't understand your request. Could you please provide more details?";
 	}
 
-	public static String suggestRecipe(String userInput) throws IOException {
+	public static String suggestRecipe(String userInput){
 		JsonNode rootNode = getRootNode(userInput);
 		JsonNode hitsNode = rootNode.get("hits");
 		if (hitsNode != null && hitsNode.isArray() && hitsNode.size() > 0) {
