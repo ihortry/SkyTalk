@@ -3,25 +3,22 @@
  * @since 2024
  * @version 1.0
  */
-
 package griffith;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import java.util.*;
+import java.util.regex.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ChefConnect {
-	
 	private static final String RECIPE_API_URL = "https://api.edamam.com/search";
 	private static final String APP_ID = "b9576f7d";
 	private static final String APP_KEY = "d7a5d085107bf7dd9377ed2a4146576d";
-	
+
 	public static void main(String[] args) {
 
 		Scanner scanner = new Scanner(System.in);
@@ -49,7 +46,12 @@ public class ChefConnect {
 			System.out.println("Enter the name of the dish: ");
 			Scanner input = new Scanner(System.in);
 			String dish = input.nextLine();
-//			return suggestRecipe(dish);
+			try {
+				return suggestRecipe(dish);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 		Pattern nutritionPattern = Pattern.compile("\\b(nutrition|nutritional info)\\b");
@@ -65,7 +67,37 @@ public class ChefConnect {
 
 		return "I'm sorry, I didn't understand your request. Could you please provide more details?";
 	}
-	
+
+	public static String suggestRecipe(String userInput) throws IOException {
+		JsonNode rootNode = getRootNode(userInput);
+		JsonNode hitsNode = rootNode.get("hits");
+		if (hitsNode != null && hitsNode.isArray() && hitsNode.size() > 0) {
+			// Get the first recipe from the response
+			JsonNode recipeNode = hitsNode.get(0).get("recipe");
+
+			JsonNode labelNode = recipeNode.get("label");
+			JsonNode urlNode = recipeNode.get("url");
+			if (labelNode != null && urlNode != null) {
+				String recipeName = labelNode.asText();
+				String recipeUrl = urlNode.asText();
+				JsonNode ingredientLines = recipeNode.get("ingredientLines");
+				String ingredients = "";
+				for (int i = 0; i < ingredientLines.size(); i++) {
+					ingredients = ingredients + " - " + ingredientLines.get(i).asText() + "\n";
+				}
+				String cookingTime = recipeNode.get("totalTime").asText();
+
+				return "Here's a recipe for " + recipeName + ".\n" + "Cooking time: " + cookingTime + " min\n"
+						+ "Ingredients:\n" + ingredients + "\n" + provideNutritionalInfo(userInput) + "\n"
+						+ "You can find it here: " + recipeUrl;
+			} else {
+				return "Sorry, I couldn't find the necessary information for the recipe.";
+			}
+		} else {
+			return "Sorry, I couldn't find any recipes for your query.";
+		}
+	}
+
 	public static String provideNutritionalInfo(String userInput) {
 
 		JsonNode rootNode = getRootNode(userInput);
@@ -106,7 +138,7 @@ public class ChefConnect {
 			// Make HTTP request to the recipe API
 			userInput = URLEncoder.encode(userInput, StandardCharsets.UTF_8);
 			URL url = new URL(RECIPE_API_URL + "?q=" + userInput + "&app_id=" + APP_ID + "&app_key=" + APP_KEY);
-			// output(url);
+			// System.out.println(url);
 			Scanner scanner = new Scanner(url.openStream());
 			StringBuilder responseBuilder = new StringBuilder();
 			while (scanner.hasNextLine()) {
