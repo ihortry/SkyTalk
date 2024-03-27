@@ -75,8 +75,12 @@ public class GUIFrame extends JFrame implements ActionListener{
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		
+		String userInput = getInput();
+		String formattedInput = formatText(userInput);
+		appendToTextArea(formattedInput);
+
+		input = String.valueOf(userInput);
+		System.out.println(input);
 	}
 	
 	private static String formatText(String input) {
