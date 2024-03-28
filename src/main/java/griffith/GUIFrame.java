@@ -83,7 +83,7 @@ public class GUIFrame extends JFrame implements ActionListener{
 		System.out.println(input);
 	}
 	
-	private static String formatText(String input) {
+	public static String formatText(String input) {
 		String trimmedText = input.trim();
 		return WordUtils.wrap(trimmedText, 70);
 	}
