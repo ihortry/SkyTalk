@@ -5,37 +5,138 @@
  */
 package griffith;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.regex.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.text.*;
 
-public class ChefConnect {
+import com.fasterxml.jackson.databind.JsonNode;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+class Chatbot extends JFrame implements ActionListener {
+
 	private static final String RECIPE_API_URL = "https://api.edamam.com/search";
 	private static final String APP_ID = "b9576f7d";
 	private static final String APP_KEY = "d7a5d085107bf7dd9377ed2a4146576d";
 
-	public static void main(String[] args) {
+	private static final long serialVersionUID = 1L;
 
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("Welcome to Cooking Helper Chatbot! How can I assist you today?");
+	private static JTextArea ca = new JTextArea();
+	private static JTextField cf = new RoundTextField(20); // Use RoundTextField instead of JTextField
+	private static JButton b = new RoundButton("SEND"); // Use RoundButton instead of JButton
+
+	private JLabel l = new JLabel();
+	private static String input = null;
+
+	public Chatbot() {
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setResizable(false);
+		setLayout(null);
+		setSize(500, 430);
+		setLocation(500, 300);
+		getContentPane().setBackground(Color.gray);
+		setTitle("Fitness Program");
+
+		/**
+		 * Wrap text area inside the scrole panel
+		 */
+		JScrollPane scrollPane = new JScrollPane(ca);
+		scrollPane.setBounds(20, 20, 440, 280);
+		add(scrollPane);
+
+		add(cf);
+		add(b);
+		l.setText("SEND");
+		b.setSize(90, 30);
+		b.setLocation(350, 320);
+		ca.setSize(400, 310);
+		ca.setLocation(20, 1);
+		ca.setBackground(Color.white);
+		cf.setSize(300, 30);
+		cf.setLocation(20, 320);
+		ca.setForeground(Color.black);
+		ca.setFont(new Font("SANS_SERIF", Font.BOLD, 12));
+		ca.setEditable(false);
+
+		cf.addActionListener(this);
+		b.addActionListener(this);
+
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String userInput = getInput();
+		String formattedInput = formatText(userInput);
+		appendToTextArea(formattedInput);
+
+		input = String.valueOf(userInput);
+		System.out.println(input);
+
+	}
+
+	public static String formatText(String input) {
+		String trimmedText = input.trim();
+		return WordUtils.wrap(trimmedText, 70);
+	}
+
+	public static void appendToTextArea(String text) {
+		ca.append("\nYou-->\n" + text + "\n");
+	}
+
+	public static String getInput() {
+		String inputText = cf.getText();
+		cf.setText(""); // Clear the input field after capturing the text
+		return inputText;
+	}
+
+	public static String input() {
+		String userInput = null;
+		while (userInput == null) {
+			userInput = input;
+			System.out.println();
+		}
+		input = null;
+
+		return userInput;
+	}
+
+	public static void output(String s) {
+		ca.append("\nChatBot-->\n" + s + "\n");
+	}
+
+	public static void main(String[] args) {
+		Chatbot chatbot = new Chatbot();
+		chatbot.setVisible(true);
+
+		output("Welcome to Cooking Helper Chatbot! How can I assist you today?");
 
 		while (true) {
-			String userInput = scanner.nextLine().toLowerCase();
+
+			String userInput = input().toLowerCase();
 			if (userInput.equals("exit")) {
-				System.out.println("Exiting Cooking Helper Chatbot. Have a great day!");
+				output("Exiting Cooking Helper Chatbot. Have a great day!");
 				break;
 			} else {
 				String response = generateResponse(userInput);
-				System.out.println(response);
+				output(response);
 			}
 		}
 
-		scanner.close();
 	}
 
 	public static String generateResponse(String userInput) {
@@ -43,27 +144,26 @@ public class ChefConnect {
 		Matcher recipeMatcher = recipePattern.matcher(userInput);
 
 		if (recipeMatcher.find()) {
-			System.out.println("Enter the name of the dish: ");
-			Scanner input = new Scanner(System.in);
-			String dish = input.nextLine();
+			output("Enter the name of the dish: ");
+			String dish = input();
 			return suggestRecipe(dish);
+
 		}
 
 		Pattern nutritionPattern = Pattern.compile("\\b(nutrition|nutritional info)\\b");
 		Matcher nutritionMatcher = nutritionPattern.matcher(userInput);
 
 		if (nutritionMatcher.find()) {
-			System.out.println("Enter the name of the dish: ");
-			Scanner input = new Scanner(System.in);
-			String dish = input.nextLine();
-			System.out.println(provideNutritionalInfo(dish));
+			output("Enter the name of the dish or product: ");
+			String dish = input();
+			output(provideNutritionalInfo(dish));
 			return ""; // Response handled within the method
 		}
 
 		return "I'm sorry, I didn't understand your request. Could you please provide more details?";
 	}
 
-	public static String suggestRecipe(String userInput){
+	public static String suggestRecipe(String userInput) {
 		JsonNode rootNode = getRootNode(userInput);
 		JsonNode hitsNode = rootNode.get("hits");
 		if (hitsNode != null && hitsNode.isArray() && hitsNode.size() > 0) {
@@ -84,7 +184,7 @@ public class ChefConnect {
 
 				return "Here's a recipe for " + recipeName + ".\n" + "Cooking time: " + cookingTime + " min\n"
 						+ "Ingredients:\n" + ingredients + "\n" + provideNutritionalInfo(userInput) + "\n"
-						+ "You can find it here: " + recipeUrl;
+						+ "You can find it here:\n" + recipeUrl;
 			} else {
 				return "Sorry, I couldn't find the necessary information for the recipe.";
 			}
@@ -133,7 +233,7 @@ public class ChefConnect {
 			// Make HTTP request to the recipe API
 			userInput = URLEncoder.encode(userInput, StandardCharsets.UTF_8);
 			URL url = new URL(RECIPE_API_URL + "?q=" + userInput + "&app_id=" + APP_ID + "&app_key=" + APP_KEY);
-			// System.out.println(url);
+			// output(url);
 			Scanner scanner = new Scanner(url.openStream());
 			StringBuilder responseBuilder = new StringBuilder();
 			while (scanner.hasNextLine()) {

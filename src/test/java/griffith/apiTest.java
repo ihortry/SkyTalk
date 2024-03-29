@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 class apiTest {
-	ChefConnect chef = new ChefConnect();
+	Chatbot chef = new Chatbot();
 	@Test
 	void testProvideNutritionalInfo() {
 		assertEquals("Nutritional Information:\n"
@@ -40,7 +40,8 @@ class apiTest {
 				+ " Protein: 22.50 g\n"
 				+ " Fat: 9.67 g\n"
 				+ "\n"
-				+ "You can find it here: https://www.simplyrecipes.com/recipes/beef_wellington/"
+				+ "You can find it here:\n"
+				+ "https://www.simplyrecipes.com/recipes/beef_wellington/"
 				+ ""
 				, chef.suggestRecipe("beef wellington"));
 		
@@ -60,7 +61,8 @@ class apiTest {
 				+ " Protein: 14.20 g\n"
 				+ " Fat: 21.47 g\n"
 				+ "\n"
-				+ "You can find it here: http://norecipes.com/blog/spaghetti-carbonara-recipe/"
+				+ "You can find it here:\n"
+				+ "http://norecipes.com/blog/spaghetti-carbonara-recipe/"
 				+ "", chef.suggestRecipe("Carbonara"));
 		
 		
@@ -88,7 +90,8 @@ class apiTest {
 				+ " Protein: 8.54 g\n"
 				+ " Fat: 7.80 g\n"
 				+ "\n"
-				+ "You can find it here: https://www.bettycrocker.com/recipes/slow-cooker-bolognese/e5e6ccc9-0adf-4635-88ad-6036ac80ec8f"
+				+ "You can find it here:\n"
+				+ "https://www.bettycrocker.com/recipes/slow-cooker-bolognese/e5e6ccc9-0adf-4635-88ad-6036ac80ec8f"
 				+ "", chef.suggestRecipe("pasta bolognese slow cooker"));
 	}
 	
