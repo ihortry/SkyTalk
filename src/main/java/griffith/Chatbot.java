@@ -50,7 +50,7 @@ class Chatbot extends JFrame implements ActionListener {
 		setSize(500, 430);
 		setLocation(500, 300);
 		getContentPane().setBackground(Color.gray);
-		setTitle("Fitness Program");
+		setTitle("ChefConnect");
 
 		/**
 		 * Wrap text area inside the scrole panel
@@ -100,7 +100,8 @@ class Chatbot extends JFrame implements ActionListener {
 
 	public static String getInput() {
 		String inputText = cf.getText();
-		cf.setText(""); // Clear the input field after capturing the text
+		cf.setText("");
+		// Clear the input field after capturing the text
 		return inputText;
 	}
 
@@ -123,7 +124,7 @@ class Chatbot extends JFrame implements ActionListener {
 		Chatbot chatbot = new Chatbot();
 		chatbot.setVisible(true);
 
-		output("Welcome to Cooking Helper Chatbot! How can I assist you today?");
+		output("Welcome to Cooking Helper Chatbot! How can I assist you today?\n(Ex. \"I want to cook dinner\", \"get recipe\", \"Get nutritional info\")");
 
 		while (true) {
 
