@@ -18,7 +18,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class ChefConnectFormatTextTest {
 	
-	private GUIFrame gui = new GUIFrame();
+	private Chatbot gui = new Chatbot();
 	private String input;
 	private String expectedOutput;
 	
@@ -39,7 +39,7 @@ public class ChefConnectFormatTextTest {
 	                + "Letraset sheets containing Lorem Ipsum passages, and more recently\r\n"
 	                + "with desktop publishing software like Aldus PageMaker including\r\n"
 	                + "versions of Lorem Ipsum.",
-	                GUIFrame.formatText("Lorem Ipsum has been the industry's"
+	                Chatbot.formatText("Lorem Ipsum has been the industry's"
 	                        + " standard dummy text ever since the 1500s"
 	                        + ", when an unknown printer took a galley"
 	                        + " of type and scrambled it to make a type specimen"
@@ -59,7 +59,7 @@ public class ChefConnectFormatTextTest {
 	                + "Latin words, consectetur, from a Lorem Ipsum passage, and going\r\n"
 	                + "through the cites of the word in classical literature, discovered the\r\n"
 	                + "undoubtable source.",
-	                GUIFrame.formatText("Contrary to popular belief, Lorem Ipsum is not simply random text. "
+	                Chatbot.formatText("Contrary to popular belief, Lorem Ipsum is not simply random text. "
 	                		+ "It has roots in a piece of classical Latin literature from 45 BC, making it over "
 	                		+ "2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in "
 	                		+ "Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem "
@@ -70,7 +70,7 @@ public class ChefConnectFormatTextTest {
 	            {
 	                "The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes\r\n"
 	                + "from a line in section 1.10.32.",
-	                GUIFrame.formatText("The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.")
+	                Chatbot.formatText("The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.")
 	            }
 	    };
 
