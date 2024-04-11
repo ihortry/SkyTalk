@@ -49,8 +49,38 @@ public class SkyTalk{
 	}
 	
 	public static HashMap<String, LocalDate> takeUserInput(String input) {
+		places = new HashMap<>();
 		
-		return new HashMap<>();
-	}
+		boolean validInput = false;
+		
+		while (!validInput) {
+			
+			String[] data = input.split(",");
 
+			for (String placeWithDate : data) {
+				String[] placeInfo = placeWithDate.trim().split(" ");
+				if (placeInfo.length != 2) {
+					System.out.println("Invalid input format. Please enter place and date separated by a space.");
+					continue;
+				}
+				String placeName = placeInfo[0];
+				String dateOfVisit = placeInfo[1];
+				try {
+					LocalDate date = LocalDate.parse(dateOfVisit, formatter);
+					places.put(placeName, date);
+				} catch (Exception e) {
+					System.out.println("Invalid date format for " + placeName + ". Please enter date in format dd/MM/yyyy.");
+				}
+			}
+			StringBuilder placesAndDates = new StringBuilder();
+			placesAndDates.append("Places and dates:\n");
+			for (String place : places.keySet()) {
+				placesAndDates.append(" " + place + ": " + places.get(place).format(formatter) + "\n");
+			}
+			System.out.println(placesAndDates.toString());
+		
+		}
+		
+		return places;
+	}
 }
