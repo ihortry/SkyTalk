@@ -16,13 +16,13 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class ChefConnectFormatTextTest {
+public class GUITest {
 	
 	private Chatbot gui = new Chatbot();
 	private String input;
 	private String expectedOutput;
 	
-	public ChefConnectFormatTextTest(String input, String expectedOutput) {
+	public GUITest(String input, String expectedOutput) {
 		super();
 		this.input = input;
 		this.expectedOutput = expectedOutput;
