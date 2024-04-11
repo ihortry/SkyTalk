@@ -78,7 +78,19 @@ public class SkyTalk{
 				placesAndDates.append(" " + place + ": " + places.get(place).format(formatter) + "\n");
 			}
 			System.out.println(placesAndDates.toString());
-		
+			if (places.size() >= MAXPLACES) {
+				System.out.println("Maximum number of places reached.");
+				validInput = true;
+			} else {
+				System.out.println("Do you want to add more places? (yes/no)");
+				String moreInput = scanner.nextLine();
+				if (!moreInput.equals("yes")) {
+					validInput = true;
+				} else {
+					System.out.println("Enter place you plan to visit and date: ");
+					input = scanner.nextLine();
+				}
+			}
 		}
 		
 		return places;
