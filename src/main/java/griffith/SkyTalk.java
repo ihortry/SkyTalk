@@ -21,6 +21,19 @@ public class SkyTalk{
 	private static final String API_KEY = "7402bc32917148ce907223855241304";
 	private static HashMap<String, LocalDate> places = new HashMap<>();
 	private static final int MAXPLACES = 5;
+
+	// Default values
+	private static double minTemperature = 100;
+	private static double maxTemperature = 0;
+
+	// Each weather condition has its own unique code (Multilingual Condition list
+	// URL: https://www.weatherapi.com/docs/conditions.json)
+	private static int[] rainCodes = new int[] { 1063, 1066, 1069, 1072, 1087, 1114, 1150, 1153, 1171, 1180, 1183, 1186,
+			1189, 1192, 1195, 1198, 1201, 1204, 1207, 1240, 1243, 1246, 1249, 1252, 1255, 1264, 1273, 1276 };
+	private static int sunCode = 1000;
+
+	private static boolean umbrellaIsNeeded = false;
+	private static boolean sunglassesIsNeeded = false;
 	private static Scanner scanner = new Scanner(System.in);
 	private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -108,42 +121,74 @@ public class SkyTalk{
 	private static void getForecast(String location, LocalDate date) {
 		try {
 			// Adjust the start date to the current date
-						String formattedForecastDate = date.toString();
+			String formattedForecastDate = date.toString();
 
-						// Construct the URL with API key and adjusted date
-						String urlStr = BASE_URL + "/forecast.json?key=" + API_KEY + "&q=" + URLEncoder.encode(location, "UTF-8")
-								+ "&dt=" + formattedForecastDate;
-						//System.out.println(urlStr);
-						URL url = new URL(urlStr);
+			// Construct the URL with API key and adjusted date
+			String urlStr = BASE_URL + "/forecast.json?key=" + API_KEY + "&q=" + URLEncoder.encode(location, "UTF-8")
+					+ "&dt=" + formattedForecastDate;
+			//System.out.println(urlStr);
+			URL url = new URL(urlStr);
 
-						// Make API call with adjusted date
-						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-						connection.setRequestMethod("GET");
+			// Make API call with adjusted date
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
 
-						BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-						StringBuilder response = new StringBuilder();
-						String line;
-						while ((line = reader.readLine()) != null) {
-							response.append(line);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			StringBuilder response = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				response.append(line);
+			}
+			reader.close();
+
+			// Parse JSON response
+			ObjectMapper mapper = new ObjectMapper();
+			JsonNode root = mapper.readTree(response.toString());
+
+			// Check if forecast node exists and is not empty
+			JsonNode forecastNode = root.get("forecast");
+			if (forecastNode != null && forecastNode.has("forecastday") && forecastNode.get("forecastday").isArray()) {
+				// Access forecast data
+				JsonNode forecastdayArray = forecastNode.get("forecastday");
+				JsonNode firstForecastDay = forecastdayArray.get(0);
+				JsonNode dayNode = firstForecastDay.get("day"); // Access the "day" node
+				if (dayNode != null) {
+
+					double currentMinTemp = dayNode.get("mintemp_c").asDouble();
+					if (currentMinTemp < minTemperature) {
+						minTemperature = currentMinTemp;
+					}
+
+					double currentmaxTemp = dayNode.get("maxtemp_c").asDouble();
+					if (currentmaxTemp > maxTemperature) {
+						maxTemperature = currentmaxTemp;
+					}
+
+					JsonNode condition = dayNode.get("condition");
+					int currectCode = condition.get("code").asInt();
+
+					for (int code : rainCodes) {
+						if (currectCode == code) {
+							umbrellaIsNeeded = true;
+							break;
 						}
-						reader.close();
-						// Parse JSON response
-						ObjectMapper mapper = new ObjectMapper();
-						JsonNode root = mapper.readTree(response.toString());
+					}
 
-						// Check if forecast node exists and is not empty
-						JsonNode forecastNode = root.get("forecast");
-						if (forecastNode != null && forecastNode.has("forecastday") && forecastNode.get("forecastday").isArray()) {
-							// Access forecast data
-							JsonNode forecastdayArray = forecastNode.get("forecastday");
-							JsonNode firstForecastDay = forecastdayArray.get(0);
-							JsonNode dayNode = firstForecastDay.get("day"); // Access the "day" node
-						}
-			
-			} catch (IOException e) {
-				e.printStackTrace();
+					if (currectCode == sunCode) {
+						sunglassesIsNeeded = true;
+					}
+
+					// You can extract more data similarly and structure your return object
+				} else {
+					System.out.println("No forecast data found for the given date and location.");
+				}
+			} else {
+				System.out.println("No forecast data found for the given date and location.");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+
 		}
-			
 	}
 		
 }
