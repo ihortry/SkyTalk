@@ -11,6 +11,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 public class SkyTalk{
 
@@ -124,6 +127,18 @@ public class SkyTalk{
 							response.append(line);
 						}
 						reader.close();
+						// Parse JSON response
+						ObjectMapper mapper = new ObjectMapper();
+						JsonNode root = mapper.readTree(response.toString());
+
+						// Check if forecast node exists and is not empty
+						JsonNode forecastNode = root.get("forecast");
+						if (forecastNode != null && forecastNode.has("forecastday") && forecastNode.get("forecastday").isArray()) {
+							// Access forecast data
+							JsonNode forecastdayArray = forecastNode.get("forecastday");
+							JsonNode firstForecastDay = forecastdayArray.get(0);
+							JsonNode dayNode = firstForecastDay.get("day"); // Access the "day" node
+						}
 			
 			} catch (IOException e) {
 				e.printStackTrace();
