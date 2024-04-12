@@ -1,5 +1,11 @@
 package griffith;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -95,4 +101,34 @@ public class SkyTalk{
 		
 		return places;
 	}
+	
+	private static void getForecast(String location, LocalDate date) {
+		try {
+			// Adjust the start date to the current date
+						String formattedForecastDate = date.toString();
+
+						// Construct the URL with API key and adjusted date
+						String urlStr = BASE_URL + "/forecast.json?key=" + API_KEY + "&q=" + URLEncoder.encode(location, "UTF-8")
+								+ "&dt=" + formattedForecastDate;
+						//System.out.println(urlStr);
+						URL url = new URL(urlStr);
+
+						// Make API call with adjusted date
+						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+						connection.setRequestMethod("GET");
+
+						BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+						StringBuilder response = new StringBuilder();
+						String line;
+						while ((line = reader.readLine()) != null) {
+							response.append(line);
+						}
+						reader.close();
+			
+			} catch (IOException e) {
+				e.printStackTrace();
+		}
+			
+	}
+		
 }
