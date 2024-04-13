@@ -11,34 +11,42 @@ class SkyTalkTest {
 	SkyTalk skyTalk = new SkyTalk();
 
 	@Test
-	void testGenerateClothingPlan() {
+	void testGenerateResponse() {
+		HashMap<String, LocalDate> places1 = new HashMap<>();
+		places1.put("london", LocalDate.of(2024, 4, 16));
 		assertEquals("My suggestion:\n"
-				+ "Since the lowest temperature during the entire trip will be 5.0 degrees\n"
-				+ "Celsius and the highest 10.0 degrees Celsius.\n"
+				+ "Since the lowest temperature during the entire trip will be 6.4 degrees\n"
+				+ "Celsius and the highest 12.5 degrees Celsius.\n"
+				+ " Put on a Long Sleeves and Jeans.\n"
+				+ "",skyTalk.generateResponse(places1));
+		
+		HashMap<String, LocalDate> places2 = new HashMap<>();
+		places2.put("london", LocalDate.of(2024, 4, 16));
+		places2.put("cork", LocalDate.of(2024, 4, 17));
+		
+		assertEquals("My suggestion:\n"
+				+ "Since the lowest temperature during the entire trip will be 3.7 degrees\n"
+				+ "Celsius and the highest 12.9 degrees Celsius.\n"
 				+ " Put on a Long Sleeves and Jeans.\n"
 				+ " There is a high chance of rain during your trip,\n"
-				+ " so take an umbrella or a raincoat.🌧Don't forget to bring your sunglasses, you'll need them.☼", skyTalk.generateClothingPlan(5, 10, true, true));
+				+ " so take an umbrella or a raincoat.ðŸŒ§",skyTalk.generateResponse(places2));
+		
+		HashMap<String, LocalDate> places3 = new HashMap<>();
+		places3.put("London", LocalDate.of(2024, 4, 16));
+		places3.put("Cork", LocalDate.of(2024, 4, 17));
+		places3.put("Dublin", LocalDate.of(2024, 4, 17));
+		places3.put("Kyiv", LocalDate.of(2024, 4, 18));
 		
 		assertEquals("My suggestion:\n"
-				+ "Since the lowest temperature during the entire trip will be 22.0 degrees\n"
-				+ "Celsius and the highest 32.0 degrees Celsius.\n"
-				+ " Put on a Tank Top and Shorts.\n"
-				+ "Don't forget to bring your sunglasses, you'll need them.☼", skyTalk.generateClothingPlan(22, 32, false, true));
-		
-		assertEquals("My suggestion:\n"
-				+ "Since the lowest temperature during the entire trip will be 10.0 degrees\n"
-				+ "Celsius and the highest 14.0 degrees Celsius.\n"
-				+ " Put on a Long Sleeves and Jeans.\n"
-				+ "",skyTalk.generateClothingPlan(10, 14, false, false));
-		
-		assertEquals("My suggestion:\n"
-				+ "Since the lowest temperature during the entire trip will be 10.0 degrees\n"
-				+ "Celsius and the highest 20.0 degrees Celsius.\n"
-				+ " Put on a Long Sleeves and Light trousers.\n"
+				+ "Since the lowest temperature during the entire trip will be 1.0 degrees\n"
+				+ "Celsius and the highest 12.9 degrees Celsius.\n"
+				+ " Put on a Long Sleeves, Jacket and Jeans.\n"
 				+ " There is a high chance of rain during your trip,\n"
-				+ " so take an umbrella or a raincoat.🌧", skyTalk.generateClothingPlan(10, 20, true, false));
+				+ " so take an umbrella or a raincoat.ðŸŒ§",skyTalk.generateResponse(places3));
 		
-		assertEquals("Not defined", skyTalk.generateClothingPlan(20, 1, true, false));
+		HashMap<String, LocalDate> places4 = new HashMap<>();
+		assertEquals("Not defined",skyTalk.generateResponse(places4));
+		
+		
 	}
-
 }
