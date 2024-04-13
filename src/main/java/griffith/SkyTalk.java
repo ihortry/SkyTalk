@@ -117,6 +117,9 @@ public class SkyTalk{
 		
 		return places;
 	}
+	public static String generateResponse(HashMap<String, LocalDate> places) {
+		return "";
+	}
 	
 	private static void getForecast(String location, LocalDate date) {
 		try {
@@ -234,11 +237,11 @@ public class SkyTalk{
 		}
 
 		if (umbrellaIsNeeded) {
-			plan.append(" There is a high chance of rain during your trip,\n so take an umbrella or a raincoat.🌧");
+			plan.append(" There is a high chance of rain during your trip,\n so take an umbrella or a raincoat.ðŸŒ§");
 		}
 
 		if (sunglassesIsNeeded) {
-			plan.append("Don't forget to bring your sunglasses, you'll need them.☼");
+			plan.append("Don't forget to bring your sunglasses, you'll need them.â˜¼");
 		}
 
 		return plan.toString();
