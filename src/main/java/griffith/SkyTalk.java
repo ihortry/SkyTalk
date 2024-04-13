@@ -117,6 +117,9 @@ public class SkyTalk{
 		
 		return places;
 	}
+	public static String generateResponse(HashMap<String, LocalDate> places) {
+		return "";
+	}
 	
 	private static void getForecast(String location, LocalDate date) {
 		try {
