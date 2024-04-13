@@ -190,5 +190,9 @@ public class SkyTalk{
 
 		}
 	}
+	public static String generateClothingPlan(double minTemperature, double maxTemperature, boolean umbrellaIsNeeded,
+			boolean sunglassesIsNeeded) {
+		return "";
+	}
 		
 }
