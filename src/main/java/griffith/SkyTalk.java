@@ -1,19 +1,21 @@
 package griffith;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
+
+import java.io.*;
+import java.net.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.Scanner;
+
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 
 public class SkyTalk{
 
@@ -34,12 +36,24 @@ public class SkyTalk{
 
 	private static boolean umbrellaIsNeeded = false;
 	private static boolean sunglassesIsNeeded = false;
-	private static Scanner scanner = new Scanner(System.in);
+	//private static Scanner scanner = new Scanner(System.in);
 	private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	
+	private static final long serialVersionUID = 1L;
+	private static JTextArea ca = new JTextArea();
+	private static JTextField cf = new RoundTextField(20); // Use RoundTextField instead of JTextField
+	private static JButton b = new RoundButton("SEND"); // Use RoundButton instead of JButton
+	private static JLabel l = new JLabel();
+	private static String input = null;
+	private static GUI gui = new GUI(serialVersionUID, ca, cf, b, l,null);
 
 	public static void main(String[] args) {
 
-		System.out.println("Welcome to SkyTalk Chatbot!\n"
+		
+		
+		gui.setVisible(true);
+
+		gui.output("Welcome to SkyTalk Chatbot!\n"
 				+ "Enter up to 5 places you plan to visit and dates to plan your clothing\nrequirements.\n"
 				+ "(For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024):");
 		// Read user input and process accordingly
@@ -47,9 +61,9 @@ public class SkyTalk{
 		String input;
 	
 		while (true) {
-			input = scanner.nextLine();
+			input = gui.input();
 			if (input.equalsIgnoreCase("exit")) {
-				System.out.println("Exiting SkyTalk Chatbot. Have a great day!");
+				gui.output("Exiting SkyTalk Chatbot. Have a great day!");
 				break;
 			} else {
 				places = takeUserInput(input);
@@ -59,10 +73,12 @@ public class SkyTalk{
 					finalPlaces.append("  " + place + ": " + places.get(place).format(formatter)+"\n");
 				}
 				
-				System.out.println(finalPlaces.toString());
+				gui.output(finalPlaces.toString());
 				//System.out.print("\n");
 				
-				System.out.println("Type \"exit\" or enter new locations to continue\n"
+				gui.output(generateResponse(places));
+				
+				gui.output("Type \"exit\" or enter new locations to continue\n"
 						+ "(For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024):");
 				
 			}
@@ -82,7 +98,7 @@ public class SkyTalk{
 			for (String placeWithDate : data) {
 				String[] placeInfo = placeWithDate.trim().split(" ");
 				if (placeInfo.length != 2) {
-					System.out.println("Invalid input format. Please enter place and date separated by a space.");
+					gui.output("Invalid input format. Please enter place and date separated by a space.");
 					continue;
 				}
 				String placeName = placeInfo[0];
@@ -91,7 +107,7 @@ public class SkyTalk{
 					LocalDate date = LocalDate.parse(dateOfVisit, formatter);
 					places.put(placeName, date);
 				} catch (Exception e) {
-					System.out.println("Invalid date format for " + placeName + ". Please enter date in format dd/MM/yyyy.");
+					gui.output("Invalid date format for " + placeName + ". Please enter date in format dd/MM/yyyy.");
 				}
 			}
 			StringBuilder placesAndDates = new StringBuilder();
@@ -99,28 +115,40 @@ public class SkyTalk{
 			for (String place : places.keySet()) {
 				placesAndDates.append(" " + place + ": " + places.get(place).format(formatter) + "\n");
 			}
-			System.out.println(placesAndDates.toString());
+			gui.output(placesAndDates.toString());
 			if (places.size() >= MAXPLACES) {
-				System.out.println("Maximum number of places reached.");
+				gui.output("Maximum number of places reached.");
 				validInput = true;
 			} else {
-				System.out.println("Do you want to add more places? (yes/no)");
-				String moreInput = scanner.nextLine();
+				gui.output("Do you want to add more places? (yes/no)");
+				String moreInput = gui.input();
 				if (!moreInput.equals("yes")) {
 					validInput = true;
 				} else {
-					System.out.println("Enter place you plan to visit and date: ");
-					input = scanner.nextLine();
+					gui.output("Enter place you plan to visit and date: ");
+					input = gui.input();
 				}
 			}
 		}
 		
 		return places;
 	}
+
 	public static String generateResponse(HashMap<String, LocalDate> places) {
-		return "";
+		// Reset variables
+		minTemperature = 100;
+		maxTemperature = 0;
+		umbrellaIsNeeded = false;
+		sunglassesIsNeeded = false;
+
+		for (String location : places.keySet()) {
+			getForecast(location, places.get(location));
+		}
+
+		return generateClothingPlan(minTemperature, maxTemperature, umbrellaIsNeeded, sunglassesIsNeeded);
+
 	}
-	
+
 	private static void getForecast(String location, LocalDate date) {
 		try {
 			// Adjust the start date to the current date
@@ -183,17 +211,17 @@ public class SkyTalk{
 
 					// You can extract more data similarly and structure your return object
 				} else {
-					System.out.println("No forecast data found for the given date and location.");
+					gui.output("No forecast data found for the given date and location.");
 				}
 			} else {
-				System.out.println("No forecast data found for the given date and location.");
+				gui.output("No forecast data found for the given date and location.");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 
 		}
 	}
-	
+
 	public static String generateClothingPlan(double minTemperature, double maxTemperature, boolean umbrellaIsNeeded,
 			boolean sunglassesIsNeeded) {
 		
@@ -246,5 +274,4 @@ public class SkyTalk{
 
 		return plan.toString();
 	}
-		
 }
