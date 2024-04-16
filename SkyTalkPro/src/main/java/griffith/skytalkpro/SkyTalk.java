@@ -6,12 +6,18 @@
 
 package griffith.skytalkpro;
 
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 
-import java.io.IOException;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+import java.util.Arrays;
+import java.util.List;
 
 public class SkyTalk extends Application {
 	/*
@@ -28,12 +34,54 @@ public class SkyTalk extends Application {
             "Option 3");
     
     @Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(SkyTalk.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
-        stage.setScene(scene);
-        stage.show();
+    public void start(Stage primaryStage) {
+    	/*
+    	 * Creation of instance ChatBot
+    	 */
+        chatBot = new ChatBot();
+        
+        /**
+         * Creation of root layout
+         */
+        BorderPane root = new BorderPane();
+        
+        /*
+         * Main taxt area inside which displays 
+         */
+        VBox chatPane = new VBox();
+        
+        /**
+         * VBox style setup
+         */
+        chatPane.setStyle("-fx-background-color: #f0f0f0;");
+        chatPane.setPadding(new Insets(10));
+        
+        /*
+         * ScrollPane addition to the main text area and style setup
+         */
+        ScrollPane scrollPane = new ScrollPane(chatPane);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setStyle("-fx-background:transparent;");
+
+        /*
+         * Bind the scroll position to the bottom
+         */
+        scrollPane.vvalueProperty().bind(chatPane.heightProperty());
+
+        /*
+         * Text field for typing messages and its style setup
+         */
+        HBox inputBox = new HBox(5);      
+        inputBox.setPadding(new Insets(10));
+        inputBox.setAlignment(Pos.CENTER);
+
+        /*
+         * Text field for user input and its style setup
+         */
+        TextField inputField = new TextField();
+        inputField.setPromptText("Type here...");
+        inputField.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: #ffffff; -fx-background-radius: 10;");
     }
 
     public static void main(String[] args) {
