@@ -6,10 +6,10 @@
 
 package griffith.skytalkpro;
 
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -33,6 +33,12 @@ public class SkyTalk extends Application {
             "Option 2",
             "Option 3");
     
+    
+    
+    /**
+     * Method inside which occur creation of Chatbot instance
+     * and addition all elements of window application
+     */
     @Override
     public void start(Stage primaryStage) {
     	/*
@@ -82,6 +88,44 @@ public class SkyTalk extends Application {
         TextField inputField = new TextField();
         inputField.setPromptText("Type here...");
         inputField.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: #ffffff; -fx-background-radius: 10;");
+
+        /*
+         * Button for sending user messages 
+         */
+        Button sendButton = new Button("Send");
+        /*
+         * Style button 
+         */
+        sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;");
+        sendButton.setOnMouseEntered(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #45a049, #4CAF50); -fx-text-fill: white; -fx-background-radius: 10;"));
+        sendButton.setOnMouseExited(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
+
+        /*
+         *  Common options to ask the bot about weather 
+         *  Creation five of them and position center
+         */
+        VBox optionsBox = new VBox(5);
+        optionsBox.setAlignment(Pos.CENTER);
+
+        /*
+         * Margin addition to the buttons with options
+         */
+        Insets buttonMargin = new Insets(5);
+        for (String option : predefinedOptions) {
+            Button optionButton = new Button(option);
+            optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;");
+            optionButton.setOnMouseEntered(e -> optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #45a049, #4CAF50); -fx-text-fill: white; -fx-background-radius: 10;"));
+            optionButton.setOnMouseExited(e -> optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
+            optionButton.setOnAction(event -> {
+                inputField.setText(option);
+            });
+
+            /*
+             * Add margin to the option button
+             */
+            VBox.setMargin(optionButton, buttonMargin);
+            optionsBox.getChildren().add(optionButton);
+        }
     }
 
     public static void main(String[] args) {
