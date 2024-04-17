@@ -206,6 +206,54 @@ public class SkyTalk extends Application {
      * @param isBot
      */
     private void addMessage(VBox chatPane, String sender, String message, boolean isBot) {
-      
+        StackPane messageContainer = new StackPane();
+        messageContainer.setPadding(new Insets(5));
+        messageContainer.setMaxWidth(300);
+
+        HBox messageBox = new HBox(5);
+        messageBox.setMaxWidth(300);
+        messageBox.setSpacing(10);
+        messageBox.setPadding(new Insets(5));
+        messageBox.setAlignment(Pos.CENTER);
+
+        // Customize the border style for bot and user messages
+        String borderColor = isBot ? "#0099FF" : "#4CAF50";
+        String backgroundColor = isBot ? "#B3E5FC" : "#C8E6C9";
+        String textColor = isBot ? "#000000" : "#000000";
+
+        messageBox.setStyle("-fx-background-color: " + backgroundColor + "; -fx-border-radius: 10; -fx-padding: 5px; -fx-border-color: " + borderColor + "; -fx-border-width: 2px;");
+
+        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream(isBot ? "robot.png" : "user.png")));
+        imageView.setFitWidth(30);
+        imageView.setFitHeight(30);
+
+        TextArea messageText = new TextArea(message);
+        messageText.setFont(Font.font("Arial", 12));
+        messageText.setEditable(false);
+        messageText.setWrapText(true);
+        messageText.setMaxWidth(220);
+        messageText.setMinHeight(60); // Set fixed height for all messages
+        messageText.setMaxHeight(60); // Set fixed height for all messages
+        messageText.setStyle("-fx-text-fill: " + textColor + ";");
+
+        messageBox.getChildren().addAll(isBot ? imageView : messageText, isBot ? messageText : imageView); // Swap positions of imageView and messageText
+
+        messageContainer.getChildren().add(messageBox);
+        chatPane.getChildren().add(messageContainer);
+
+        // Align messageContainer to the appropriate side
+        messageContainer.setAlignment(isBot ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
+
+        // Animation
+        TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(0.5), messageContainer);
+        translateTransition.setFromX(isBot ? -400 : 400);
+        translateTransition.setToX(0);
+
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), messageContainer);
+        fadeTransition.setFromValue(0);
+        fadeTransition.setToValue(1);
+
+        translateTransition.play();
+        fadeTransition.play();
     }
 }
