@@ -9,6 +9,7 @@ package griffith.skytalkpro;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -126,6 +127,23 @@ public class SkyTalk extends Application {
             VBox.setMargin(optionButton, buttonMargin);
             optionsBox.getChildren().add(optionButton);
         }
+
+        // Add input field and send button to the input box
+        inputBox.getChildren().addAll(inputField, sendButton);
+        VBox.setVgrow(scrollPane, javafx.scene.layout.Priority.ALWAYS);
+
+        // Set the layout components to the root layout
+        root.setCenter(scrollPane);
+        root.setBottom(inputBox);
+        root.setRight(optionsBox);
+
+        // Create the scene and set it to the stage
+        Scene scene = new Scene(root, 500, 400);
+        scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
+        primaryStage.setTitle("Impressive ChatBot");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+        
     }
 
     public static void main(String[] args) {
