@@ -19,6 +19,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.util.Arrays;
 import java.util.List;
+import javafx.animation.PauseTransition;
+
 
 public class SkyTalk extends Application {
 	/*
@@ -36,6 +38,10 @@ public class SkyTalk extends Application {
     
     
     
+    /**
+     * Method inside which occur creation of Chatbot instance
+     * and addition all elements of window application
+     */
     /**
      * Method inside which occur creation of Chatbot instance
      * and addition all elements of window application
@@ -89,6 +95,10 @@ public class SkyTalk extends Application {
         TextField inputField = new TextField();
         inputField.setPromptText("Type here...");
         inputField.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: #ffffff; -fx-background-radius: 10;");
+        /*
+         * Event listener for inputField(user messages)
+         */
+        inputField.setOnAction(event -> sendMessage(chatPane, inputField));
 
         /*
          * Button for sending user messages 
@@ -100,6 +110,7 @@ public class SkyTalk extends Application {
         sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;");
         sendButton.setOnMouseEntered(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #45a049, #4CAF50); -fx-text-fill: white; -fx-background-radius: 10;"));
         sendButton.setOnMouseExited(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
+        sendButton.setOnAction(event -> sendMessage(chatPane, inputField));
 
         /*
          *  Common options to ask the bot about weather 
@@ -119,6 +130,7 @@ public class SkyTalk extends Application {
             optionButton.setOnMouseExited(e -> optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
             optionButton.setOnAction(event -> {
                 inputField.setText(option);
+                sendMessage(chatPane, inputField);
             });
 
             /*
@@ -143,10 +155,41 @@ public class SkyTalk extends Application {
         primaryStage.setTitle("Impressive ChatBot");
         primaryStage.setScene(scene);
         primaryStage.show();
-        
     }
 
     public static void main(String[] args) {
         launch();
     }
+    
+    private void sendMessage(VBox chatPane, TextField inputField) {
+    	/*
+    	 * Get input from text field
+    	 */
+    	
+        String userInput = inputField.getText();
+        /*
+         * Append text area
+         */
+        addMessage(chatPane, "You", userInput, false);
+
+        /*
+         *  Add a delay before the bot responds
+         /
+        PauseTransition pauseTransition = new PauseTransition(Duration.seconds(1));
+        /
+         * Addition of action listener for pause transitions
+         */
+        pauseTransition.setOnFinished(event -> {
+            String response = chatBot.respond(userInput);
+            addMessage(chatPane, "Bot", response, true);
+        });
+        pauseTransition.play();
+
+        inputField.clear();
+    }
+
+	private void addMessage(VBox chatPane, String string, String userInput, boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
 }
