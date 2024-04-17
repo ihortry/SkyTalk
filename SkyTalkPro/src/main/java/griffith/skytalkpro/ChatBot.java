@@ -8,6 +8,9 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
+import javafx.application.Application;
+import javafx.stage.Stage;
+
 
 /*
  * Class representing the ChatBot logic

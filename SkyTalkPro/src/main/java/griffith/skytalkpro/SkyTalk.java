@@ -146,6 +146,9 @@ public class SkyTalk extends Application {
              */
             VBox.setMargin(optionButton, buttonMargin);
             optionsBox.getChildren().add(optionButton);
+            
+            
+        
         }
 
         // Add input field and send button to the input box
@@ -163,21 +166,39 @@ public class SkyTalk extends Application {
         primaryStage.setTitle("SkyTalk");
         primaryStage.setScene(scene);
         primaryStage.show();
+        
+        // Add welcome message for the robot
+        String welcomeMessage = "Welcome to SkyTalk Chatbot!\n";
+        addMessage(chatPane, "Bot", welcomeMessage, true);
+        String instruction = "Enter up to 5 places you plan to visit and dates to plan your clothing\nrequirements.";
+        addMessage(chatPane, "Bot", instruction, true);
+        String example = "For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024:";
+        addMessage(chatPane, "Bot", example, true);
     }
 
     public static void main(String[] args) {
         launch();
+        //addMessage(chatPane, "You", , false);
     }
 
+    public String input(String userInput) {
+    	System.out.println(userInput);
+		return userInput;
+    	
+    }
+    
     private void sendMessage(VBox chatPane, TextField inputField) {
         /*
          * Get input from text field
          */
 
         String userInput = inputField.getText();
+        
+        input(userInput);
         /*
          * Append text area
          */
+        
         addMessage(chatPane, "You", userInput, false);
 
         /*
@@ -225,7 +246,7 @@ public class SkyTalk extends Application {
         messageBox.setAlignment(Pos.CENTER);
 
         /*
-         * Customize the border style for bot and user messages
+         * Customise the border style for bot and user messages
          */
         String borderColor = isBot ? "#0099FF" : "#4CAF50";
         String backgroundColor = isBot ? "#B3E5FC" : "#C8E6C9";
