@@ -1,11 +1,27 @@
-package griffith.skytalkpro;
+package griffith;
 
-/*
- * Class representing the ChatBot logic
- */
-class ChatBot {
+import java.io.*;
+import java.net.*;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-    private static final String TIMEZONE_API_BASE_URL = "https://api.geotimezone.com/public/timezone";
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+public class SkyTalk {
+
+	private static final String TIMEZONE_API_BASE_URL = "https://api.geotimezone.com/public/timezone";
 	private static final String WEATHER_API_KEY = "d28881d996383f0a2d6a65bb445a882d";
 	private static HashMap<String, ZonedDateTime> places = new HashMap<>();
 	private static final int MAXPLACES = 5;
@@ -330,24 +346,4 @@ class ChatBot {
 
 		return plan.toString();
 	}
-
-
-    public String respond(String input) {
-        /*
-         * Simulation of processing time
-         */
-        try {
-        	/*
-        	 * Delay the bot respond for a second after user input display
-        	 */
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        /*
-         * return string result of the bot respond
-         */
-        return "You said: " + input;
-    }
 }
