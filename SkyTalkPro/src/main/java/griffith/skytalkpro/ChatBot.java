@@ -58,9 +58,9 @@ class ChatBot {
 
     public static void main(String[] args) {
 
-        respond("Welcome to SkyTalk Chatbot!\n"
-                + "Enter up to 5 places you plan to visit and dates to plan your clothing\nrequirements.\n"
-                + "(For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024):");
+//        respond("Welcome to SkyTalk Chatbot!\n"
+//                + "Enter up to 5 places you plan to visit and dates to plan your clothing\nrequirements.\n"
+//                + "(For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024):";
         // Read user input and process accordingly
 
 //        String input;
@@ -88,7 +88,7 @@ class ChatBot {
 //
 //            }
 //        }
-
+//
     }
 //
 //    public static HashMap<String, ZonedDateTime> takeUserInput(String input) {
@@ -333,7 +333,7 @@ class ChatBot {
 //
 //        return plan.toString();
 //    }
-//
+
 
     public static String respond(String input) {
         /*
