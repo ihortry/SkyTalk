@@ -206,17 +206,24 @@ public class SkyTalk extends Application {
      * @param isBot
      */
     private void addMessage(VBox chatPane, String sender, String message, boolean isBot) {
+    	/*
+    	 * Creation of StackPane for messages
+    	 * and style it
+    	 */
         StackPane messageContainer = new StackPane();
         messageContainer.setPadding(new Insets(5));
         messageContainer.setMaxWidth(300);
 
+        
         HBox messageBox = new HBox(5);
         messageBox.setMaxWidth(300);
         messageBox.setSpacing(10);
         messageBox.setPadding(new Insets(5));
         messageBox.setAlignment(Pos.CENTER);
 
-        // Customize the border style for bot and user messages
+        /*
+         * Customize the vorder style for bot and user mesages
+         */
         String borderColor = isBot ? "#0099FF" : "#4CAF50";
         String backgroundColor = isBot ? "#B3E5FC" : "#C8E6C9";
         String textColor = isBot ? "#000000" : "#000000";
@@ -241,15 +248,19 @@ public class SkyTalk extends Application {
         messageContainer.getChildren().add(messageBox);
         chatPane.getChildren().add(messageContainer);
 
-        // Align messageContainer to the appropriate side
+        /*
+         * positioned messageContainer
+         */
         messageContainer.setAlignment(isBot ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
 
         // Animation
         TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(0.5), messageContainer);
+        
         translateTransition.setFromX(isBot ? -400 : 400);
         translateTransition.setToX(0);
-
+      
         FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), messageContainer);
+        
         fadeTransition.setFromValue(0);
         fadeTransition.setToValue(1);
 
