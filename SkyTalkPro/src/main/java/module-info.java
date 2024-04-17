@@ -10,6 +10,7 @@ module griffith.skytalkpro {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
+	requires json.simple;
 
     opens griffith.skytalkpro to javafx.fxml;
     exports griffith.skytalkpro;
