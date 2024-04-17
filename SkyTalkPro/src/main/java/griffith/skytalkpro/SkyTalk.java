@@ -214,7 +214,10 @@ public class SkyTalk extends Application {
         messageContainer.setPadding(new Insets(5));
         messageContainer.setMaxWidth(300);
 
-        
+        /*
+         * Creation of messageBox 
+         * and style it
+         */
         HBox messageBox = new HBox(5);
         messageBox.setMaxWidth(300);
         messageBox.setSpacing(10);
@@ -222,7 +225,7 @@ public class SkyTalk extends Application {
         messageBox.setAlignment(Pos.CENTER);
 
         /*
-         * Customize the vorder style for bot and user mesages
+         * Customize the border style for bot and user messages
          */
         String borderColor = isBot ? "#0099FF" : "#4CAF50";
         String backgroundColor = isBot ? "#B3E5FC" : "#C8E6C9";
@@ -234,16 +237,27 @@ public class SkyTalk extends Application {
         imageView.setFitWidth(30);
         imageView.setFitHeight(30);
 
+        /*
+         * Creation of textArea for message
+         */
         TextArea messageText = new TextArea(message);
         messageText.setFont(Font.font("Arial", 12));
+        /*
+         * Make messageText not editable
+         */
         messageText.setEditable(false);
         messageText.setWrapText(true);
         messageText.setMaxWidth(220);
-        messageText.setMinHeight(60); // Set fixed height for all messages
-        messageText.setMaxHeight(60); // Set fixed height for all messages
+        /*
+         * Fix size for messageText
+         */
+        messageText.setMinHeight(60); 
+        messageText.setMaxHeight(60); 
         messageText.setStyle("-fx-text-fill: " + textColor + ";");
-
-        messageBox.getChildren().addAll(isBot ? imageView : messageText, isBot ? messageText : imageView); // Swap positions of imageView and messageText
+        /*
+         *  Swap positions of imageView and messageText
+         */
+        messageBox.getChildren().addAll(isBot ? imageView : messageText, isBot ? messageText : imageView); 
 
         messageContainer.getChildren().add(messageBox);
         chatPane.getChildren().add(messageContainer);
