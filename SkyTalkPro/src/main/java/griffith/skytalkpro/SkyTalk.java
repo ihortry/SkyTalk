@@ -6,20 +6,28 @@
 
 package griffith.skytalkpro;
 
+import javafx.animation.FadeTransition;
+import javafx.animation.PauseTransition;
+import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import java.util.Arrays;
 import java.util.List;
-import javafx.animation.PauseTransition;
 
 
 public class SkyTalk extends Application {
@@ -174,9 +182,11 @@ public class SkyTalk extends Application {
 
         /*
          *  Add a delay before the bot responds
-         /
+         */
+        
         PauseTransition pauseTransition = new PauseTransition(Duration.seconds(1));
-        /
+        
+        /*
          * Addition of action listener for pause transitions
          */
         pauseTransition.setOnFinished(event -> {
@@ -188,8 +198,14 @@ public class SkyTalk extends Application {
         inputField.clear();
     }
 
-	private void addMessage(VBox chatPane, String string, String userInput, boolean b) {
-		// TODO Auto-generated method stub
-		
-	}
+    /**
+     *	Method that adds a message to the chat pane
+     * @param chatPane
+     * @param sender
+     * @param message
+     * @param isBot
+     */
+    private void addMessage(VBox chatPane, String sender, String message, boolean isBot) {
+      
+    }
 }
