@@ -351,6 +351,6 @@ class ChatBot {
         /*
          * return string result of the bot respond
          */
-        return "You said: " + input;
+        return "Info for you: " + input;
     }
 }
