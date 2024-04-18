@@ -23,14 +23,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.json.simple.parser.ParseException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import org.json.simple.parser.ParseException;
 
 
 
@@ -273,9 +272,9 @@ public class SkyTalk extends Application {
         messageText.setFont(Font.font("Arial", 12));
         messageText.setEditable(false);
         messageText.setWrapText(true);
-        messageText.setMaxWidth(220);
-        messageText.setMinHeight(60);
-        messageText.setMaxHeight(60); // Set fixed height for all messages
+        messageText.setMaxWidth(250);
+        messageText.setMinHeight((1 + message.length()/30)*20);
+       messageText.setMaxHeight(600);
         messageText.setStyle("-fx-text-fill: " + textColor + ";");
 
         messageBox.getChildren().addAll(isBot ? imageView : messageText, isBot ? messageText : imageView); // Swap positions of imageView and messageText
@@ -402,78 +401,6 @@ public class SkyTalk extends Application {
 
     }
 
-    // private static void getForecast(String location, LocalDate date) {
-    //     try {
-    //         // Adjust the start date to the current date
-    //         String formattedForecastDate = date.toString();
-
-    //         // Construct the URL with API key and adjusted date
-    //         String urlStr = BASE_URL + "/forecast.json?key=" + API_KEY + "&q=" + URLEncoder.encode(location, "UTF-8")
-    //                 + "&dt=" + formattedForecastDate;
-    //         //System.out.println(urlStr);
-    //         URL url = new URL(urlStr);
-
-    //         // Make API call with adjusted date
-    //         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    //         connection.setRequestMethod("GET");
-
-    //         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-    //         StringBuilder response = new StringBuilder();
-    //         String line;
-    //         while ((line = reader.readLine()) != null) {
-    //             response.append(line);
-    //         }
-    //         reader.close();
-
-    //         // Parse JSON response
-    //         ObjectMapper mapper = new ObjectMapper();
-    //         JsonNode root = mapper.readTree(response.toString());
-
-    //         // Check if forecast node exists and is not empty
-    //         JsonNode forecastNode = root.get("forecast");
-    //         if (forecastNode != null && forecastNode.has("forecastday") && forecastNode.get("forecastday").isArray()) {
-    //             // Access forecast data
-    //             JsonNode forecastdayArray = forecastNode.get("forecastday");
-    //             JsonNode firstForecastDay = forecastdayArray.get(0);
-    //             JsonNode dayNode = firstForecastDay.get("day"); // Access the "day" node
-    //             if (dayNode != null) {
-
-    //                 double currentMinTemp = dayNode.get("mintemp_c").asDouble();
-    //                 if (currentMinTemp < minTemperature) {
-    //                     minTemperature = currentMinTemp;
-    //                 }
-
-    //                 double currentmaxTemp = dayNode.get("maxtemp_c").asDouble();
-    //                 if (currentmaxTemp > maxTemperature) {
-    //                     maxTemperature = currentmaxTemp;
-    //                 }
-
-    //                 JsonNode condition = dayNode.get("condition");
-    //                 int currectCode = condition.get("code").asInt();
-
-    //                 for (int code : rainCodes) {
-    //                     if (currectCode == code) {
-    //                         umbrellaIsNeeded = true;
-    //                         break;
-    //                     }
-    //                 }
-
-    //                 if (currectCode == sunCode) {
-    //                     sunglassesIsNeeded = true;
-    //                 }
-
-    //                 // You can extract more data similarly and structure your return object
-    //             } else {
-    //                 output("No forecast data found for the given date and location.");
-    //             }
-    //         } else {
-    //             output("No forecast data found for the given date and location.");
-    //         }
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-
-    //     }
-    // }
 
     public static String generateClothingPlan(double minTemperature, double maxTemperature, boolean umbrellaIsNeeded,
                                               boolean sunglassesIsNeeded) {
