@@ -1,17 +1,14 @@
 package griffith.skytalkpro;
 
-/**
- * 	@author Ihor Tryndey 3105023 and Oleksii Babii 3104904
- *  @version 2.0
- *  @since 2024
- */
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -28,163 +25,111 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 
-public class SkyTalk extends Application {
 
-    private static final String TIMEZONE_API_BASE_URL = "https://api.geotimezone.com/public/timezone";
-    private static final String WEATHER_API_KEY = "d28881d996383f0a2d6a65bb445a882d";
-    private static HashMap<String, ZonedDateTime> places = new HashMap<>();
+public class SkyTalk extends Application {
+    private static final String BASE_URL = "http://api.weatherapi.com/v1";
+    private static final String API_KEY = "7402bc32917148ce907223855241304";
+    private static HashMap<String, LocalDate> places = new HashMap<>();
     private static final int MAXPLACES = 5;
 
-    // private static Scanner scanner = new Scanner(System.in);
+    // Default values
+    private static double minTemperature = 100;
+    private static double maxTemperature = 0;
+
+    // Each weather condition has its own unique code (Multilingual Condition list
+    // URL: https://www.weatherapi.com/docs/conditions.json)
+    private static int[] rainCodes = new int[] { 1063, 1066, 1069, 1072, 1087, 1114, 1150, 1153, 1171, 1180, 1183, 1186,
+            1189, 1192, 1195, 1198, 1201, 1204, 1207, 1240, 1243, 1246, 1249, 1252, 1255, 1264, 1273, 1276 };
+    private static int sunCode = 1000;
+
+    private static boolean umbrellaIsNeeded = false;
+    private static boolean sunglassesIsNeeded = false;
+    //private static Scanner scanner = new Scanner(System.in);
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    // helper method to get the response of an API call
-    private static String call(String urlStr) {
-        try {
-            // convert string to URL object
-            URL url = new URL(urlStr);
-            // try connecting to the URL
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
 
-            // read the input from the API call
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            // append the data to the response string
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-
-            }
-            // close the reader
-            in.close();
-            // return the output as a string
-            return response.toString();
-        } catch (Exception e) {
-            e.getStackTrace();
-            return null;
-        }
-
-    }
-    /*
-     *  Declaration of chatbot object.
-     */
     private ChatBot chatBot;
+    static VBox chatPane = new VBox();
 
-    /*
-     *  Common options to ask the bot about weather
-     */
+    static String lastInput;
+
+    TextField inputField = new TextField();
+
+    // Predefined options for the user to choose from
     private List<String> predefinedOptions = Arrays.asList(
             "Option 1",
             "Option 2",
-            "Option 3");
+            "Option 3"
+    );
 
-
-
-    /**
-     * Method inside which occur creation of Chatbot instance
-     * and addition all elements of window application
-     */
-    /**
-     * Method inside which occur creation of Chatbot instance
-     * and addition all elements of window application
-     */
     @Override
     public void start(Stage primaryStage) {
-        /*
-         * Creation of instance ChatBot
-         */
         chatBot = new ChatBot();
 
-        /**
-         * Creation of root layout
-         */
         BorderPane root = new BorderPane();
 
-        /*
-         * Main taxt area inside which displays
-         */
-        VBox chatPane = new VBox();
-
-        /**
-         * VBox style setup
-         */
+        // Container for displaying chat messages
+        //VBox chatPane = new VBox();
         chatPane.setStyle("-fx-background-color: #f0f0f0;");
         chatPane.setPadding(new Insets(10));
-
-        /*
-         * ScrollPane addition to the main text area and style setup
-         */
         ScrollPane scrollPane = new ScrollPane(chatPane);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
         scrollPane.setStyle("-fx-background:transparent;");
 
-        /*
-         * Bind the scroll position to the bottom
-         */
+        // Bind the scroll position to the bottom
         scrollPane.vvalueProperty().bind(chatPane.heightProperty());
 
-        /*
-         * Text field for typing messages and its style setup
-         */
+        // Input box for typing messages
         HBox inputBox = new HBox(5);
         inputBox.setPadding(new Insets(10));
         inputBox.setAlignment(Pos.CENTER);
 
-        /*
-         * Text field for user input and its style setup
-         */
-        TextField inputField = new TextField();
+        // Text field for user input
+        //TextField inputField = new TextField();
         inputField.setPromptText("Type here...");
         inputField.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: #ffffff; -fx-background-radius: 10;");
-        /*
-         * Event listener for inputField(user messages)
-         */
-        inputField.setOnAction(event -> sendMessage(chatPane, inputField));
+        //inputField.setOnAction(event -> sendMessage(chatPane, inputField));
+        inputField.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                handleInput(inputField);
+                sendMessage(chatPane, inputField);
+            }
+        });
 
-        /*
-         * Button for sending user messages
-         */
+
+        // Button for sending messages
         Button sendButton = new Button("Send");
-        /*
-         * Style button
-         */
         sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;");
         sendButton.setOnMouseEntered(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #45a049, #4CAF50); -fx-text-fill: white; -fx-background-radius: 10;"));
         sendButton.setOnMouseExited(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
-        sendButton.setOnAction(event -> sendMessage(chatPane, inputField));
+        //sendButton.setOnAction(event -> sendMessage(chatPane, inputField));
+        sendButton.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                handleInput(inputField);
+                sendMessage(chatPane, inputField);
+            }
+        });
 
-        /*
-         *  Common options to ask the bot about weather
-         *  Creation five of them and position center
-         */
+
         VBox optionsBox = new VBox(5);
         optionsBox.setAlignment(Pos.CENTER);
 
-        /*
-         * Margin addition to the buttons with options
-         */
+
         Insets buttonMargin = new Insets(5);
         for (String option : predefinedOptions) {
             Button optionButton = new Button(option);
@@ -194,16 +139,14 @@ public class SkyTalk extends Application {
             optionButton.setOnAction(event -> {
                 inputField.setText(option);
                 sendMessage(chatPane, inputField);
+                String input;
             });
 
-            /*
-             * Add margin to the option button
-             */
+
+            // Add margin to the option button
             VBox.setMargin(optionButton, buttonMargin);
+
             optionsBox.getChildren().add(optionButton);
-
-
-
         }
 
         // Add input field and send button to the input box
@@ -218,94 +161,128 @@ public class SkyTalk extends Application {
         // Create the scene and set it to the stage
         Scene scene = new Scene(root, 500, 400);
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
-        primaryStage.setTitle("SkyTalk");
+        primaryStage.setTitle("Impressive ChatBot");
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        // Add welcome message for the robot
-        String welcomeMessage = "Welcome to SkyTalk Chatbot!\n";
-        addMessage(chatPane, "Bot", welcomeMessage, true);
-        String instruction = "Enter up to 5 places you plan to visit and dates to plan your clothing\nrequirements.";
-        addMessage(chatPane, "Bot", instruction, true);
-        String example = "For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024:";
-        addMessage(chatPane, "Bot", example, true);
+        output("Welcome to SkyTalk Chatbot!");
+        output("Enter up to 5 places you plan to visit and dates to plan your clothing requirements.");
+        output("For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024");
     }
 
-    public static void main(String[] args) {
-        launch();
-        //addMessage(chatPane, "You", , false);
+    public void handleInput(TextField inputField){
+        lastInput = inputField.getText();
+        System.out.println("Handle " + lastInput);
     }
 
-    public String input(String userInput) {
-        System.out.println(userInput);
-        return userInput;
 
-    }
 
+    // Method to send a message
     private void sendMessage(VBox chatPane, TextField inputField) {
-        /*
-         * Get input from text field
-         */
-
         String userInput = inputField.getText();
+        System.out.println(lastInput);
         addMessage(chatPane, "You", userInput, false);
-        takeUserInput(userInput, chatPane, inputField);
-        while (true) {
+        //lastInput = userInput;
 
-            if (userInput.equalsIgnoreCase("exit")) {
-
-                addMessage(chatPane, "Bot", ChatBot.respond("Exiting SkyTalk Chatbot. Have a great day!"), true);
-                break;
-            } else {
-                places = takeUserInput(userInput, chatPane, inputField);
-                StringBuilder finalPlaces = new StringBuilder();
-                finalPlaces.append("Final Places and dates:\n");
-                for (String place : places.keySet()) {
-                    finalPlaces.append("  " + place + ": " + places.get(place).format(formatter) + "\n");
-                }
-
-
-                addMessage(chatPane, "Bot", ChatBot.respond(finalPlaces.toString()), true);
-                // System.out.print("\n");
-
-
-                try {
-                    addMessage(chatPane, "Bot", ChatBot.respond(generateResponse(places)) , true);
-                } catch (IOException | ParseException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                addMessage(chatPane, "Bot", ChatBot.respond("Type \"exit\" or enter new locations to continue\n"
-                        + "(For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024):"), true);
-
-            }
-        }
-        /*
-         *  Add a delay before the bot responds
-         */
-
+        // Add a delay before the bot responds
         PauseTransition pauseTransition = new PauseTransition(Duration.seconds(1));
-
-        /*
-         * Addition of action listener for pause transitions
-         */
-        pauseTransition.setOnFinished(event -> {
-            String response = chatBot.respond(userInput);
-            addMessage(chatPane, "Bot", response, true);
-        });
         pauseTransition.play();
 
         inputField.clear();
+
+        String input;
+
+        while (true) {
+            input = input();
+            if (input.equalsIgnoreCase("exit")) {
+                output("Exiting SkyTalk Chatbot. Have a great day!");
+                Platform.exit(); // Terminate the JavaFX application
+                break;
+            } else {
+                places = takeUserInput(input);
+                StringBuilder finalPlaces = new StringBuilder();
+                finalPlaces.append("Final Places and dates:\n");
+                for (String place : places.keySet()) {
+                    finalPlaces.append("  " + place + ": " + places.get(place).format(formatter)+"\n");
+                }
+
+                output(finalPlaces.toString());
+                //System.out.print("\n");
+
+                output(generateResponse(places));
+
+                output("Type \"exit\" or enter new locations to continue\n"
+                        + "(For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024):");
+
+            }
+        }
     }
 
+    public static String input() {
+        String temp = new String(lastInput);
+        lastInput = null;
+        return temp;
 
-    /*
-     * 
-     */
+    }
 
+    public static void output(String message) {
+        addMessage(chatPane, "Bot", message, true);
+    }
 
-    public HashMap<String, ZonedDateTime> takeUserInput(String input, VBox chatPane, TextField inputField) {
+    // Method to add a message to the chat pane
+    private static void addMessage(VBox chatPane, String sender, String message, boolean isBot) {
+        StackPane messageContainer = new StackPane();
+        messageContainer.setPadding(new Insets(5));
+        messageContainer.setMaxWidth(300);
+
+        HBox messageBox = new HBox(5);
+        messageBox.setMaxWidth(300);
+        messageBox.setSpacing(10);
+        messageBox.setPadding(new Insets(5));
+        messageBox.setAlignment(Pos.CENTER);
+
+        // Customize the border style for bot and user messages
+        String borderColor = isBot ? "#0099FF" : "#4CAF50";
+        String backgroundColor = isBot ? "#B3E5FC" : "#C8E6C9";
+        String textColor = isBot ? "#000000" : "#000000";
+
+        messageBox.setStyle("-fx-background-color: " + backgroundColor + "; -fx-border-radius: 10; -fx-padding: 5px; -fx-border-color: " + borderColor + "; -fx-border-width: 2px;");
+
+        ImageView imageView = new ImageView(new Image(SkyTalk.class.getResourceAsStream(isBot ? "robot.png" : "user.png")));
+        imageView.setFitWidth(30);
+        imageView.setFitHeight(30);
+
+        TextArea messageText = new TextArea(message);
+        messageText.setFont(Font.font("Arial", 12));
+        messageText.setEditable(false);
+        messageText.setWrapText(true);
+        messageText.setMaxWidth(220);
+        messageText.setMinHeight(60);
+        messageText.setMaxHeight(60); // Set fixed height for all messages
+        messageText.setStyle("-fx-text-fill: " + textColor + ";");
+
+        messageBox.getChildren().addAll(isBot ? imageView : messageText, isBot ? messageText : imageView); // Swap positions of imageView and messageText
+
+        messageContainer.getChildren().add(messageBox);
+        chatPane.getChildren().add(messageContainer);
+
+        // Align messageContainer to the appropriate side
+        messageContainer.setAlignment(isBot ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
+
+        // Animation
+        TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(0.5), messageContainer);
+        translateTransition.setFromX(isBot ? -400 : 400);
+        translateTransition.setToX(0);
+
+        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), messageContainer);
+        fadeTransition.setFromValue(0);
+        fadeTransition.setToValue(1);
+
+        translateTransition.play();
+        fadeTransition.play();
+    }
+
+    public static HashMap<String, LocalDate> takeUserInput(String input) {
         places = new HashMap<>();
 
         boolean validInput = false;
@@ -317,233 +294,134 @@ public class SkyTalk extends Application {
             for (String placeWithDate : data) {
                 String[] placeInfo = placeWithDate.trim().split(" ");
                 if (placeInfo.length != 2) {
-                    addMessage(chatPane, "Bot",
-                            ChatBot.respond("Invalid input format. Please enter place and date separated by a space."),
-                            true);
+                    output("Invalid input format. Please enter place and date separated by a space.");
                     continue;
                 }
                 String placeName = placeInfo[0];
                 String dateOfVisit = placeInfo[1];
                 try {
-                    // get the coordinates of the location given in order to find its timezone
-                    double[] placeCoordinates = cityToCoordinate(placeName);
-                    // get the timezone name of the location
                     LocalDate date = LocalDate.parse(dateOfVisit, formatter);
-                    ZonedDateTime zonedDate = date.atStartOfDay(ZoneId.of(timezoneFromCoordinate(placeCoordinates)));
-                    // ZoneId zoneId = ZoneId.of("UTC");
-                    // long epoch = date.atStartOfDay(zoneId).toEpochSecond();
-
-                    places.put(placeName, zonedDate);
+                    places.put(placeName, date);
                 } catch (Exception e) {
-                    addMessage(chatPane, "Bot", ChatBot.respond(
-                            "Invalid date format for " + placeName + ". Please enter date in format dd/MM/yyyy."),
-                            true);
-
+                    output("Invalid date format for " + placeName + ". Please enter date in format dd/MM/yyyy.");
                 }
             }
-
-            // TODO
-
             StringBuilder placesAndDates = new StringBuilder();
             placesAndDates.append("Places and dates:\n");
             for (String place : places.keySet()) {
                 placesAndDates.append(" " + place + ": " + places.get(place).format(formatter) + "\n");
             }
-
-            addMessage(chatPane, "Bot", ChatBot.respond(placesAndDates.toString()), true);
-            if (places.size() >= MAXPLACES) {
-                addMessage(chatPane, "Bot", ChatBot.respond("Maximum number of places reached."), true);
-                validInput = true;
-            } else {
-
-                addMessage(chatPane, "Bot", ChatBot.respond("Do you want to add more places? (yes/no)"), true);
-                String moreInput = gui.input();
-                if (!moreInput.equals("yes")) {
-                    validInput = true;
-                } else {
-                    addMessage(chatPane, "Bot", ChatBot.respond("Enter place you plan to visit and date: "), true);
-                    input = gui.input();
-                }
-            }
+            output(placesAndDates.toString());
+            validInput = true;
+//            if (places.size() >= MAXPLACES) {
+//                output("Maximum number of places reached.");
+//                validInput = true;
+//            } else {
+//                output("Do you want to add more places? (yes/no)");
+//
+//                String moreInput = input();
+//                if (!moreInput.equals("yes")) {
+//                    validInput = true;
+//                } else {
+//                    output("Enter place you plan to visit and date: ");
+//                    input = input();
+//                }
+//            }
         }
 
         return places;
     }
 
-    public static String timezoneFromCoordinate(double[] coordinates) throws IOException {
-        String urlStr = TIMEZONE_API_BASE_URL + "?latitude=" + coordinates[0] + "&longitude=" + coordinates[1];
-        URL url = new URL(urlStr);
-        // Make API call with adjusted date
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
+    public static String generateResponse(HashMap<String, LocalDate> places) {
+        // Reset variables
+        minTemperature = 100;
+        maxTemperature = 0;
+        umbrellaIsNeeded = false;
+        sunglassesIsNeeded = false;
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        StringBuilder response = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
-        }
-        reader.close();
-
-        // Parse JSON response
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(response.toString());
-
-
-// API call format
-        /*
-         * {
-         * "latitude": 47.5162,
-         * "longitude": 14.5501,
-         * "location": "Austria",
-         * "country_iso": "AT",
-         * "iana_timezone": "Europe/Vienna",
-         * "timezone_abbreviation": "CET",
-         * "dst_abbreviation": "CEST",
-         * "offset": "UTC+1",
-         * "dst_offset": "UTC+2",
-         * "current_local_datetime": "2023-09-19T18:06:11.57",
-         * "current_utc_datetime": "2023-09-19T16:06:11.570Z"
-         * }
-         */
-
-        return root.get("iana_timezone").asText();
-    }
-
-    public static double[] cityToCoordinate(String city) throws IOException, ParseException {
-        System.out.println("Getting coordinates for " + city + "...");
-        String urlStr = "http://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=5&appid=" + WEATHER_API_KEY;
-        URL url = new URL(urlStr);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Accept", "application/json");
-
-        JSONParser parser = new JSONParser();
-        JSONArray cities = (JSONArray) parser.parse(new InputStreamReader(conn.getInputStream()));
-
-        // Extract coordinates
-        double[] coord = null;
-        if (!cities.isEmpty()) {
-            JSONArray coordinates = (JSONArray) ((JSONArray) ((JSONArray) cities.get(0)).get(0)).get(0);
-            coord = new double[]{
-                    Double.parseDouble(coordinates.get(0).toString()),
-                    Double.parseDouble(coordinates.get(1).toString())
-            };
+        for (String location : places.keySet()) {
+            getForecast(location, places.get(location));
         }
 
-        conn.disconnect();
-        return coord;
+        return generateClothingPlan(minTemperature, maxTemperature, umbrellaIsNeeded, sunglassesIsNeeded);
+
     }
 
+    private static void getForecast(String location, LocalDate date) {
+        try {
+            // Adjust the start date to the current date
+            String formattedForecastDate = date.toString();
 
-    // getForecast() returns the weather conditions for a given coordinate and date
-    public static HashMap<String, Double> getForecast(double[] coordinate, String date) {
-        String urlStr = "https://api.openweathermap.org/data/3.0/onecall/day_summary?lat=" + coordinate[0] +
-                "&lon=" + coordinate[1] + "&units=metric&date=" + date + "&appid=" + WEATHER_API_KEY;
-        JSONObject response = new JSONObject();
-        response.put("response",call(urlStr));
-/* format:
- *
-{
-"lat":33,
-"lon":35,
-"tz":"+02:00",
-"date":"2020-03-04",
-"units":"standard",
-"cloud_cover":{
-	"afternoon":0
-},
-"humidity":{
-	"afternoon":33
-},
-"precipitation":{
-	"total":0
-},
-"temperature":{
-	"min":286.48,
-	"max":299.24,
-	"afternoon":296.15,
-	"night":289.56,
-	"evening":295.93,
-	"morning":287.59
-},
-"pressure":{
-	"afternoon":1015
-},
-"wind":{
-	"max":{
-		"speed":8.7,
-		"direction":120
-	}
-}
-}
+            // Construct the URL with API key and adjusted date
+            String urlStr = BASE_URL + "/forecast.json?key=" + API_KEY + "&q=" + URLEncoder.encode(location, "UTF-8")
+                    + "&dt=" + formattedForecastDate;
+            //System.out.println(urlStr);
+            URL url = new URL(urlStr);
 
- */
-        HashMap<String, Double> data = new HashMap<>();
-        data.put("min_temp",(Double)
-        (
-            (JSONObject)response.get("temperature")
-        ).get("min"));
+            // Make API call with adjusted date
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
 
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
 
-        data.put("max_temp",(Double)
-        (
-            (JSONObject)response.get("temperature")
-        ).get("max"));
+            // Parse JSON response
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(response.toString());
 
-        data.put("precipitation",(Double)(
-            (JSONObject)response.get("precipitation")
-        ).get("total"));
+            // Check if forecast node exists and is not empty
+            JsonNode forecastNode = root.get("forecast");
+            if (forecastNode != null && forecastNode.has("forecastday") && forecastNode.get("forecastday").isArray()) {
+                // Access forecast data
+                JsonNode forecastdayArray = forecastNode.get("forecastday");
+                JsonNode firstForecastDay = forecastdayArray.get(0);
+                JsonNode dayNode = firstForecastDay.get("day"); // Access the "day" node
+                if (dayNode != null) {
 
-        data.put("cloud_cover", (Double)(
-            (JSONObject)response.get("cloud_cover")
-        ).get("afternoon"));
-        return data;
-    }
+                    double currentMinTemp = dayNode.get("mintemp_c").asDouble();
+                    if (currentMinTemp < minTemperature) {
+                        minTemperature = currentMinTemp;
+                    }
 
-    public static String generateResponse(HashMap<String, ZonedDateTime> places) throws IOException, ParseException {
-        StringBuilder builder = new StringBuilder();
-        // for each city in the hashmap, get its coordinates
-        for (String city : places.keySet()) {
-            double[] coordinates = cityToCoordinate(city);
-            ZonedDateTime time = places.get(city);
-            //long timeUnix = time.toInstant().atZone(ZoneId.of(timezoneFromCoordinate(coordinates))).toEpochSecond();
+                    double currentmaxTemp = dayNode.get("maxtemp_c").asDouble();
+                    if (currentmaxTemp > maxTemperature) {
+                        maxTemperature = currentmaxTemp;
+                    }
 
-            // Get year, month, and day
-            int year = time.getYear();
-            int month = time.getMonthValue();
-            int day = time.getDayOfMonth();
+                    JsonNode condition = dayNode.get("condition");
+                    int currectCode = condition.get("code").asInt();
 
-            // Format them into year-month-day format
-            String formattedDate = String.format("%04d-%02d-%02d", year, month, day);
+                    for (int code : rainCodes) {
+                        if (currectCode == code) {
+                            umbrellaIsNeeded = true;
+                            break;
+                        }
+                    }
 
+                    if (currectCode == sunCode) {
+                        sunglassesIsNeeded = true;
+                    }
 
-            HashMap<String, Double> weather = getForecast(coordinates, formattedDate);
+                    // You can extract more data similarly and structure your return object
+                } else {
+                    output("No forecast data found for the given date and location.");
+                }
+            } else {
+                output("No forecast data found for the given date and location.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
 
-            double minTemp = weather.get("min_temp");
-            double maxTemp = weather.get("max_temp");
-
-            //if rainfall above 5cm, recommend umbrella
-            //if cloud cover below 10%, recommend sunglasses
-            boolean umbrellaNeeded = weather.get("precipitation") > 5;
-            boolean sunglassesNeeded = weather.get("cloud_cover")<10;
-
-            builder.append("temperature for " + city + " at " + time + ": \n");
-            builder.append("minimum temperature: " + weather.get("min_temp") + "C | ");
-            builder.append("maximum temperature: " + weather.get("max_temp") + "C \n");
-
-            builder.append("cloud cover: " + weather.get("cloud_cover") + "%\n");
-            builder.append("precipitation: " + weather.get("precipitation") + "cm\n");
-
-
-
-            String clothingPlan = generateClothingPlan(minTemp,maxTemp,umbrellaNeeded,sunglassesNeeded);
-            builder.append(clothingPlan);
         }
-        return builder.toString();
     }
 
-    public static String generateClothingPlan(double minTemperature, double maxTemperature, boolean umbrellaIsNeeded, boolean sunglassesIsNeeded) {
+    public static String generateClothingPlan(double minTemperature, double maxTemperature, boolean umbrellaIsNeeded,
+                                              boolean sunglassesIsNeeded) {
 
         if(minTemperature > maxTemperature) {
             return "Not defined";
@@ -552,7 +430,7 @@ public class SkyTalk extends Application {
         plan.append("My suggestion:\n" + "Since the lowest temperature during the entire trip will be " + minTemperature
                 + " degrees\nCelsius and the highest " + maxTemperature + " degrees Celsius.\n" + " Put on a ");
 
-// "Top" clothes
+        // "Top" clothes
         if (minTemperature > 15) {
             if (maxTemperature < 25) {
                 plan.append("T-Shirt ");
@@ -575,7 +453,7 @@ public class SkyTalk extends Application {
             }
         }
 
-// Additional clothing options based on specific temperature ranges
+        // Additional clothing options based on specific temperature ranges
         if (maxTemperature > 25) {
             plan.append("and Shorts.\n");
         } else if (maxTemperature >= 20 && maxTemperature <= 25) {
@@ -585,102 +463,19 @@ public class SkyTalk extends Application {
         }
 
         if (umbrellaIsNeeded) {
-            plan.append(" There is a high chance of rain during your trip,\n so take an umbrella or a raincoat.рџЊ§");
+            plan.append(" There is a high chance of rain during your trip,\n so take an umbrella or a raincoat.🌧");
         }
 
         if (sunglassesIsNeeded) {
-            plan.append("Don't forget to bring your sunglasses, you'll need them.вј");
+            plan.append("Don't forget to bring your sunglasses, you'll need them.☼");
         }
 
         return plan.toString();
     }
 
-
-    public void output(VBox chatPane,String str) {
-        addMessage(chatPane, "Bot", str, false);
-    }
-
-    /**
-     *	Method that adds a message to the chat pane
-     * @param chatPane
-     * @param sender
-     * @param message
-     * @param isBot
-     */
-    private void addMessage(VBox chatPane, String sender, String message, boolean isBot) {
-        /*
-         * Creation of StackPane for messages
-         * and style it
-         */
-        StackPane messageContainer = new StackPane();
-        messageContainer.setPadding(new Insets(5));
-        messageContainer.setMaxWidth(300);
-
-        /*
-         * Creation of messageBox
-         * and style it
-         */
-        HBox messageBox = new HBox(5);
-        messageBox.setMaxWidth(300);
-        messageBox.setSpacing(10);
-        messageBox.setPadding(new Insets(5));
-        messageBox.setAlignment(Pos.CENTER);
-
-        /*
-         * Customise the border style for bot and user messages
-         */
-        String borderColor = isBot ? "#0099FF" : "#4CAF50";
-        String backgroundColor = isBot ? "#B3E5FC" : "#C8E6C9";
-        String textColor = isBot ? "#000000" : "#000000";
-
-        messageBox.setStyle("-fx-background-color: " + backgroundColor + "; -fx-border-radius: 10; -fx-padding: 5px; -fx-border-color: " + borderColor + "; -fx-border-width: 2px;");
-
-        ImageView imageView = new ImageView(new Image(getClass().getResourceAsStream(isBot ? "robot.png" : "user.png")));
-        imageView.setFitWidth(30);
-        imageView.setFitHeight(30);
-
-        /*
-         * Creation of textArea for message
-         */
-        TextArea messageText = new TextArea(message);
-        messageText.setFont(Font.font("Arial", 12));
-        /*
-         * Make messageText not editable
-         */
-        messageText.setEditable(false);
-        messageText.setWrapText(true);
-        messageText.setMaxWidth(220);
-        /*
-         * Fix size for messageText
-         */
-        messageText.setMinHeight(60);
-        messageText.setMaxHeight(60);
-        messageText.setStyle("-fx-text-fill: " + textColor + ";");
-        /*
-         *  Swap positions of imageView and messageText
-         */
-        messageBox.getChildren().addAll(isBot ? imageView : messageText, isBot ? messageText : imageView);
-
-        messageContainer.getChildren().add(messageBox);
-        chatPane.getChildren().add(messageContainer);
-
-        /*
-         * positioned messageContainer
-         */
-        messageContainer.setAlignment(isBot ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
-
-        // Animation
-        TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(0.5), messageContainer);
-
-        translateTransition.setFromX(isBot ? -400 : 400);
-        translateTransition.setToX(0);
-
-        FadeTransition fadeTransition = new FadeTransition(Duration.seconds(0.5), messageContainer);
-
-        fadeTransition.setFromValue(0);
-        fadeTransition.setToValue(1);
-
-        translateTransition.play();
-        fadeTransition.play();
+    // Main method to launch the application
+    public static void main(String[] args) {
+        launch(args);
     }
 }
+
