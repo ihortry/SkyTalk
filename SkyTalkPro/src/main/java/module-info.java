@@ -11,6 +11,7 @@ module griffith.skytalkpro {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
 	requires json.simple;
+    requires com.fasterxml.jackson.databind;
 
     opens griffith.skytalkpro to javafx.fxml;
     exports griffith.skytalkpro;

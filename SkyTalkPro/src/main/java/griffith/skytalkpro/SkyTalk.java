@@ -6,6 +6,8 @@ package griffith.skytalkpro;
  *  @since 2024
  */
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
@@ -26,8 +28,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -38,10 +45,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 
 public class SkyTalk extends Application {
@@ -354,9 +357,25 @@ public class SkyTalk extends Application {
         return places;
     }
 
-    public static String timezoneFromCoordinate(double[] coordinates) {
-        String url = TIMEZONE_API_BASE_URL + "?latitude=" + coordinates[0] + "&longitude=" + coordinates[1];
-        Map response = call(url);
+    public static String timezoneFromCoordinate(double[] coordinates) throws IOException {
+        String urlStr = TIMEZONE_API_BASE_URL + "?latitude=" + coordinates[0] + "&longitude=" + coordinates[1];
+        URL url = new URL(urlStr);
+        // Make API call with adjusted date
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        StringBuilder response = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            response.append(line);
+        }
+        reader.close();
+
+        // Parse JSON response
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(response.toString());
+
 
 // API call format
         /*
@@ -374,29 +393,40 @@ public class SkyTalk extends Application {
          * "current_utc_datetime": "2023-09-19T16:06:11.570Z"
          * }
          */
-        JSONObject timezoneData = new JSONObject(response);
-        return timezoneData.getString("iana_timezone");
+
+        return root.get("iana_timezone").asText();
     }
 
-    public static double[] cityToCoordinate(String city) {
+    public static double[] cityToCoordinate(String city) throws IOException, ParseException {
         System.out.println("Getting coordinates for " + city + "...");
         String urlStr = "http://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=5&appid=" + WEATHER_API_KEY;
-        String response = call(urlStr);
-        JSONArray cities = new JSONArray(response.toString());
-        JSONObject firstCity = cities.getJSONObject(0);
-// the coordinate will be an array of two elements, the first being the latitude
-// and the second being the longitude
-        double[] coord = {
-                firstCity.getDouble("lat"),
-                firstCity.getDouble("lon")
-        };
+        URL url = new URL(urlStr);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Accept", "application/json");
 
+        JSONParser parser = new JSONParser();
+        JSONArray cities = (JSONArray) parser.parse(new InputStreamReader(conn.getInputStream()));
+
+        // Extract coordinates
+        double[] coord = null;
+        if (!cities.isEmpty()) {
+            JSONArray coordinates = (JSONArray) ((JSONArray) ((JSONArray) cities.get(0)).get(0)).get(0);
+            coord = new double[]{
+                    Double.parseDouble(coordinates.get(0).toString()),
+                    Double.parseDouble(coordinates.get(1).toString())
+            };
+        }
+
+        conn.disconnect();
         return coord;
     }
 
+
     // getForecast() returns the weather conditions for a given coordinate and date
     public static HashMap<String, Double> getForecast(double[] coordinate, String date) {
-        String urlStr = "https://api.openweathermap.org/data/3.0/onecall/day_summary?lat="+coordinate[0]+"&lon="+coordinate[1]+"&units=metric&date="+date+"&appid="+WEATHER_API_KEY;
+        String urlStr = "https://api.openweathermap.org/data/3.0/onecall/day_summary?lat=" + coordinate[0] +
+                "&lon=" + coordinate[1] + "&units=metric&date=" + date + "&appid=" + WEATHER_API_KEY;
         JSONObject response = new JSONObject(call(urlStr));
 /* format:
  *
@@ -444,7 +474,7 @@ public class SkyTalk extends Application {
         return data;
     }
 
-    public static String generateResponse(HashMap<String, ZonedDateTime> places) {
+    public static String generateResponse(HashMap<String, ZonedDateTime> places) throws IOException, ParseException {
         StringBuilder builder = new StringBuilder();
 // for each city in the hashmap, get its coordinates
         for (String city : places.keySet()) {
