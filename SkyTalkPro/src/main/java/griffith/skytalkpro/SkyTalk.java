@@ -26,11 +26,9 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -38,9 +36,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 
 public class SkyTalk extends Application {
@@ -293,250 +288,250 @@ public class SkyTalk extends Application {
     }
 
     
-//  public static HashMap<String, ZonedDateTime> takeUserInput(String input) {
-//  places = new HashMap<>();
-//
-//  boolean validInput = false;
-//
-//  while (!validInput) {
-//
-//      String[] data = input.split(",");
-//
-//      for (String placeWithDate : data) {
-//          String[] placeInfo = placeWithDate.trim().split(" ");
-//          if (placeInfo.length != 2) {
-//        	  ChatBot.respond("Invalid input format. Please enter place and date separated by a space.");
-//        	  
-//              continue;
-//          }
-//          String placeName = placeInfo[0];
-//          String dateOfVisit = placeInfo[1];
-//          try {
-//              // get the coordinates of the location given in order to find its timezone
-//              double[] placeCoordinates = cityToCoordinate(placeName);
-//              // get the timezone name of the location
-//              LocalDate date = LocalDate.parse(dateOfVisit, formatter);
-//              ZonedDateTime zonedDate = date.atStartOfDay(ZoneId.of(timezoneFromCoordinate(placeCoordinates)));
-//              // ZoneId zoneId = ZoneId.of("UTC");
-//              // long epoch = date.atStartOfDay(zoneId).toEpochSecond();
-//
-//              places.put(placeName, zonedDate);
-//          } catch (Exception e) {
-//        	  ChatBot.respond("Invalid date format for " + placeName + ". Please enter date in format dd/MM/yyyy.");
-//        	  
-//          }
-//      }
-//
-//      // TODO
-//
-//      StringBuilder placesAndDates = new StringBuilder();
-//      placesAndDates.append("Places and dates:\n");
-//      for (String place : places.keySet()) {
-//          placesAndDates.append(" " + place + ": " + places.get(place).format(formatter) + "\n");
-//      }
-//      gui.output(placesAndDates.toString());
-//      if (places.size() >= MAXPLACES) {
-//          gui.output("Maximum number of places reached.");
-//          validInput = true;
-//      } else {
-//          gui.output("Do you want to add more places? (yes/no)");
-//          String moreInput = gui.input();
-//          if (!moreInput.equals("yes")) {
-//              validInput = true;
-//          } else {
-//              gui.output("Enter place you plan to visit and date: ");
-//              input = gui.input();
-//          }
-//      }
-//  }
-//
-//  return places;
-//}
-//  
-//public static String timezoneFromCoordinate(double[] coordinates) {
-//String url = TIMEZONE_API_BASE_URL + "?latitude=" + coordinates[0] + "&longitude=" + coordinates[1];
-//String response = call(url);
-//
-//// API call format
-///*
-// * {
-// * "latitude": 47.5162,
-// * "longitude": 14.5501,
-// * "location": "Austria",
-// * "country_iso": "AT",
-// * "iana_timezone": "Europe/Vienna",
-// * "timezone_abbreviation": "CET",
-// * "dst_abbreviation": "CEST",
-// * "offset": "UTC+1",
-// * "dst_offset": "UTC+2",
-// * "current_local_datetime": "2023-09-19T18:06:11.57",
-// * "current_utc_datetime": "2023-09-19T16:06:11.570Z"
-// * }
-// */
-//JSONObject timezoneData = new JSONObject(response);
-//return timezoneData.getString("iana_timezone");
-//}
-//
-//public static double[] cityToCoordinate(String city) {
-//System.out.println("Getting coordinates for " + city + "...");
-//String urlStr = "http://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=5&appid=" + WEATHER_API_KEY;
-//String response = call(urlStr);
-//JSONArray cities = new JSONArray(response.toString());
-//JSONObject firstCity = cities.getJSONObject(0);
-//// the coordinate will be an array of two elements, the first being the latitude
-//// and the second being the longitude
-//double[] coord = {
-//        firstCity.getDouble("lat"),
-//        firstCity.getDouble("lon")
-//};
-//
-//return coord;
-//}
-//
-//// getForecast() returns the weather conditions for a given coordinate and date
-//public static HashMap<String, Double> getForecast(double[] coordinate, String date) {
-//String urlStr = "https://api.openweathermap.org/data/3.0/onecall/day_summary?lat="+coordinate[0]+"&lon="+coordinate[1]+"&units=metric&date="+date+"&appid="+WEATHER_API_KEY;
-//JSONObject response = new JSONObject(call(urlStr));
-///* format:
-// *
-//{
-//"lat":33,
-//"lon":35,
-//"tz":"+02:00",
-//"date":"2020-03-04",
-//"units":"standard",
-//"cloud_cover":{
-//	"afternoon":0
-//},
-//"humidity":{
-//	"afternoon":33
-//},
-//"precipitation":{
-//	"total":0
-//},
-//"temperature":{
-//	"min":286.48,
-//	"max":299.24,
-//	"afternoon":296.15,
-//	"night":289.56,
-//	"evening":295.93,
-//	"morning":287.59
-//},
-//"pressure":{
-//	"afternoon":1015
-//},
-//"wind":{
-//	"max":{
-//		"speed":8.7,
-//		"direction":120
-//	}
-//}
-//}
-//
-// */
-//HashMap<String, Double> data = new HashMap<>();
-//data.put("min_temp",response.getJSONObject("temperature").getDouble("min"));
-//data.put("max_temp",response.getJSONObject("temperature").getDouble("max"));
-//data.put("wind_speed",response.getJSONObject("wind").getJSONObject("max").getDouble("speed"));
-//data.put("precipitation",response.getJSONObject("precipitation").getDouble("total"));
-//data.put("cloud_cover", response.getJSONObject("cloud_cover").getDouble("afternoon"));
-//return data;
-//}
-//
-//public static String generateResponse(HashMap<String, ZonedDateTime> places) {
-//StringBuilder builder = new StringBuilder();
-//// for each city in the hashmap, get its coordinates
-//for (String city : places.keySet()) {
-//    double[] coordinates = cityToCoordinate(city);
-//    ZonedDateTime time = places.get(city);
-//    //long timeUnix = time.toInstant().atZone(ZoneId.of(timezoneFromCoordinate(coordinates))).toEpochSecond();
-//
-//    // Get year, month, and day
-//    int year = time.getYear();
-//    int month = time.getMonthValue();
-//    int day = time.getDayOfMonth();
-//
-//    // Format them into year-month-day format
-//    String formattedDate = String.format("%04d-%02d-%02d", year, month, day);
-//
-//
-//    HashMap<String, Double> weather = getForecast(coordinates, formattedDate);
-//
-//    double minTemp = weather.get("min_temp");
-//    double maxTemp = weather.get("max_temp");
-//
-//    //if rainfall above 5cm, recommend umbrella
-//    //if cloud cover below 10%, recommend sunglasses
-//    boolean umbrellaNeeded = weather.get("precipitation") > 5;
-//    boolean sunglassesNeeded = weather.get("cloud_cover")<10;
-//
-//    builder.append("temperature for " + city + " at " + time + ": \n");
-//    builder.append("minimum temperature: " + weather.get("min_temp") + "C | ");
-//    builder.append("maximum temperature: " + weather.get("max_temp") + "C \n");
-//
-//    builder.append("cloud cover: " + weather.get("cloud_cover") + "%\n");
-//    builder.append("precipitation: " + weather.get("precipitation") + "cm\n");
-//    builder.append("wind speed: " + weather.get("wind_speed") + "km/h \n");
-//
-//
-//
-//    String clothingPlan = generateClothingPlan(minTemp,maxTemp,umbrellaNeeded,sunglassesNeeded);
-//    builder.append(clothingPlan);
-//}
-//return builder.toString();
-//}
-//
-//public static String generateClothingPlan(double minTemperature, double maxTemperature, boolean umbrellaIsNeeded, boolean sunglassesIsNeeded) {
-//
-//if(minTemperature > maxTemperature) {
-//    return "Not defined";
-//}
-//StringBuilder plan = new StringBuilder();
-//plan.append("My suggestion:\n" + "Since the lowest temperature during the entire trip will be " + minTemperature
-//        + " degrees\nCelsius and the highest " + maxTemperature + " degrees Celsius.\n" + " Put on a ");
-//
-//// "Top" clothes
-//if (minTemperature > 15) {
-//    if (maxTemperature < 25) {
-//        plan.append("T-Shirt ");
-//    } else {
-//        plan.append("Tank Top ");
-//    }
-//} else {
-//    if (maxTemperature < 5) {
-//        if (minTemperature > -5) {
-//            plan.append("Long Sleeves and Coat ");
-//        } else {
-//            plan.append("Long Sleeves and Sweater ");
-//        }
-//    } else {
-//        if (maxTemperature - minTemperature > 10) {
-//            plan.append("Long Sleeves, Jacket ");
-//        } else {
-//            plan.append("Long Sleeves ");
-//        }
-//    }
-//}
-//
-//// Additional clothing options based on specific temperature ranges
-//if (maxTemperature > 25) {
-//    plan.append("and Shorts.\n");
-//} else if (maxTemperature >= 20 && maxTemperature <= 25) {
-//    plan.append("and Light trousers.\n");
-//} else {
-//    plan.append("and Jeans.\n");
-//}
-//
-//if (umbrellaIsNeeded) {
-//    plan.append(" There is a high chance of rain during your trip,\n so take an umbrella or a raincoat.рџЊ§");
-//}
-//
-//if (sunglassesIsNeeded) {
-//    plan.append("Don't forget to bring your sunglasses, you'll need them.вј");
-//}
-//
-//return plan.toString();
-//}
+  public static HashMap<String, ZonedDateTime> takeUserInput(String input) {
+  places = new HashMap<>();
+
+  boolean validInput = false;
+
+  while (!validInput) {
+
+      String[] data = input.split(",");
+
+      for (String placeWithDate : data) {
+          String[] placeInfo = placeWithDate.trim().split(" ");
+          if (placeInfo.length != 2) {
+        	  ChatBot.respond("Invalid input format. Please enter place and date separated by a space.");
+
+              continue;
+          }
+          String placeName = placeInfo[0];
+          String dateOfVisit = placeInfo[1];
+          try {
+              // get the coordinates of the location given in order to find its timezone
+              double[] placeCoordinates = cityToCoordinate(placeName);
+              // get the timezone name of the location
+              LocalDate date = LocalDate.parse(dateOfVisit, formatter);
+              ZonedDateTime zonedDate = date.atStartOfDay(ZoneId.of(timezoneFromCoordinate(placeCoordinates)));
+              // ZoneId zoneId = ZoneId.of("UTC");
+              // long epoch = date.atStartOfDay(zoneId).toEpochSecond();
+
+              places.put(placeName, zonedDate);
+          } catch (Exception e) {
+        	  ChatBot.respond("Invalid date format for " + placeName + ". Please enter date in format dd/MM/yyyy.");
+
+          }
+      }
+
+      // TODO
+
+      StringBuilder placesAndDates = new StringBuilder();
+      placesAndDates.append("Places and dates:\n");
+      for (String place : places.keySet()) {
+          placesAndDates.append(" " + place + ": " + places.get(place).format(formatter) + "\n");
+      }
+      gui.output(placesAndDates.toString());
+      if (places.size() >= MAXPLACES) {
+          gui.output("Maximum number of places reached.");
+          validInput = true;
+      } else {
+          gui.output("Do you want to add more places? (yes/no)");
+          String moreInput = gui.input();
+          if (!moreInput.equals("yes")) {
+              validInput = true;
+          } else {
+              gui.output("Enter place you plan to visit and date: ");
+              input = gui.input();
+          }
+      }
+  }
+
+  return places;
+}
+
+public static String timezoneFromCoordinate(double[] coordinates) {
+String url = TIMEZONE_API_BASE_URL + "?latitude=" + coordinates[0] + "&longitude=" + coordinates[1];
+String response = call(url);
+
+// API call format
+/*
+ * {
+ * "latitude": 47.5162,
+ * "longitude": 14.5501,
+ * "location": "Austria",
+ * "country_iso": "AT",
+ * "iana_timezone": "Europe/Vienna",
+ * "timezone_abbreviation": "CET",
+ * "dst_abbreviation": "CEST",
+ * "offset": "UTC+1",
+ * "dst_offset": "UTC+2",
+ * "current_local_datetime": "2023-09-19T18:06:11.57",
+ * "current_utc_datetime": "2023-09-19T16:06:11.570Z"
+ * }
+ */
+JSONObject timezoneData = new JSONObject(response);
+return timezoneData.getString("iana_timezone");
+}
+
+public static double[] cityToCoordinate(String city) {
+System.out.println("Getting coordinates for " + city + "...");
+String urlStr = "http://api.openweathermap.org/geo/1.0/direct?q=" + city + "&limit=5&appid=" + WEATHER_API_KEY;
+String response = call(urlStr);
+JSONArray cities = new JSONArray(response.toString());
+JSONObject firstCity = cities.getJSONObject(0);
+// the coordinate will be an array of two elements, the first being the latitude
+// and the second being the longitude
+double[] coord = {
+        firstCity.getDouble("lat"),
+        firstCity.getDouble("lon")
+};
+
+return coord;
+}
+
+// getForecast() returns the weather conditions for a given coordinate and date
+public static HashMap<String, Double> getForecast(double[] coordinate, String date) {
+String urlStr = "https://api.openweathermap.org/data/3.0/onecall/day_summary?lat="+coordinate[0]+"&lon="+coordinate[1]+"&units=metric&date="+date+"&appid="+WEATHER_API_KEY;
+JSONObject response = new JSONObject(call(urlStr));
+/* format:
+ *
+{
+"lat":33,
+"lon":35,
+"tz":"+02:00",
+"date":"2020-03-04",
+"units":"standard",
+"cloud_cover":{
+	"afternoon":0
+},
+"humidity":{
+	"afternoon":33
+},
+"precipitation":{
+	"total":0
+},
+"temperature":{
+	"min":286.48,
+	"max":299.24,
+	"afternoon":296.15,
+	"night":289.56,
+	"evening":295.93,
+	"morning":287.59
+},
+"pressure":{
+	"afternoon":1015
+},
+"wind":{
+	"max":{
+		"speed":8.7,
+		"direction":120
+	}
+}
+}
+
+ */
+HashMap<String, Double> data = new HashMap<>();
+data.put("min_temp",response.getJSONObject("temperature").getDouble("min"));
+data.put("max_temp",response.getJSONObject("temperature").getDouble("max"));
+data.put("wind_speed",response.getJSONObject("wind").getJSONObject("max").getDouble("speed"));
+data.put("precipitation",response.getJSONObject("precipitation").getDouble("total"));
+data.put("cloud_cover", response.getJSONObject("cloud_cover").getDouble("afternoon"));
+return data;
+}
+
+public static String generateResponse(HashMap<String, ZonedDateTime> places) {
+StringBuilder builder = new StringBuilder();
+// for each city in the hashmap, get its coordinates
+for (String city : places.keySet()) {
+    double[] coordinates = cityToCoordinate(city);
+    ZonedDateTime time = places.get(city);
+    //long timeUnix = time.toInstant().atZone(ZoneId.of(timezoneFromCoordinate(coordinates))).toEpochSecond();
+
+    // Get year, month, and day
+    int year = time.getYear();
+    int month = time.getMonthValue();
+    int day = time.getDayOfMonth();
+
+    // Format them into year-month-day format
+    String formattedDate = String.format("%04d-%02d-%02d", year, month, day);
+
+
+    HashMap<String, Double> weather = getForecast(coordinates, formattedDate);
+
+    double minTemp = weather.get("min_temp");
+    double maxTemp = weather.get("max_temp");
+
+    //if rainfall above 5cm, recommend umbrella
+    //if cloud cover below 10%, recommend sunglasses
+    boolean umbrellaNeeded = weather.get("precipitation") > 5;
+    boolean sunglassesNeeded = weather.get("cloud_cover")<10;
+
+    builder.append("temperature for " + city + " at " + time + ": \n");
+    builder.append("minimum temperature: " + weather.get("min_temp") + "C | ");
+    builder.append("maximum temperature: " + weather.get("max_temp") + "C \n");
+
+    builder.append("cloud cover: " + weather.get("cloud_cover") + "%\n");
+    builder.append("precipitation: " + weather.get("precipitation") + "cm\n");
+    builder.append("wind speed: " + weather.get("wind_speed") + "km/h \n");
+
+
+
+    String clothingPlan = generateClothingPlan(minTemp,maxTemp,umbrellaNeeded,sunglassesNeeded);
+    builder.append(clothingPlan);
+}
+return builder.toString();
+}
+
+public static String generateClothingPlan(double minTemperature, double maxTemperature, boolean umbrellaIsNeeded, boolean sunglassesIsNeeded) {
+
+if(minTemperature > maxTemperature) {
+    return "Not defined";
+}
+StringBuilder plan = new StringBuilder();
+plan.append("My suggestion:\n" + "Since the lowest temperature during the entire trip will be " + minTemperature
+        + " degrees\nCelsius and the highest " + maxTemperature + " degrees Celsius.\n" + " Put on a ");
+
+// "Top" clothes
+if (minTemperature > 15) {
+    if (maxTemperature < 25) {
+        plan.append("T-Shirt ");
+    } else {
+        plan.append("Tank Top ");
+    }
+} else {
+    if (maxTemperature < 5) {
+        if (minTemperature > -5) {
+            plan.append("Long Sleeves and Coat ");
+        } else {
+            plan.append("Long Sleeves and Sweater ");
+        }
+    } else {
+        if (maxTemperature - minTemperature > 10) {
+            plan.append("Long Sleeves, Jacket ");
+        } else {
+            plan.append("Long Sleeves ");
+        }
+    }
+}
+
+// Additional clothing options based on specific temperature ranges
+if (maxTemperature > 25) {
+    plan.append("and Shorts.\n");
+} else if (maxTemperature >= 20 && maxTemperature <= 25) {
+    plan.append("and Light trousers.\n");
+} else {
+    plan.append("and Jeans.\n");
+}
+
+if (umbrellaIsNeeded) {
+    plan.append(" There is a high chance of rain during your trip,\n so take an umbrella or a raincoat.рџЊ§");
+}
+
+if (sunglassesIsNeeded) {
+    plan.append("Don't forget to bring your sunglasses, you'll need them.вј");
+}
+
+return plan.toString();
+}
     /**
      *	Method that adds a message to the chat pane
      * @param chatPane
