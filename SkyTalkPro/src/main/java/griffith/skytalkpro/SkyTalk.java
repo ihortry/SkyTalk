@@ -269,7 +269,12 @@ public class SkyTalk extends Application {
                 // System.out.print("\n");
 
 
-                addMessage(chatPane, "Bot", ChatBot.respond(generateResponse(places)) , true);
+                try {
+                    addMessage(chatPane, "Bot", ChatBot.respond(generateResponse(places)) , true);
+                } catch (IOException | ParseException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
 
                 addMessage(chatPane, "Bot", ChatBot.respond("Type \"exit\" or enter new locations to continue\n"
                         + "(For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024):"), true);
@@ -295,6 +300,11 @@ public class SkyTalk extends Application {
     }
 
 
+    /*
+     * 
+     */
+
+
     public HashMap<String, ZonedDateTime> takeUserInput(String input, VBox chatPane, TextField inputField) {
         places = new HashMap<>();
 
@@ -307,7 +317,9 @@ public class SkyTalk extends Application {
             for (String placeWithDate : data) {
                 String[] placeInfo = placeWithDate.trim().split(" ");
                 if (placeInfo.length != 2) {
-                    addMessage(chatPane, "Bot",ChatBot.respond("Invalid input format. Please enter place and date separated by a space.") , true);
+                    addMessage(chatPane, "Bot",
+                            ChatBot.respond("Invalid input format. Please enter place and date separated by a space."),
+                            true);
                     continue;
                 }
                 String placeName = placeInfo[0];
@@ -323,8 +335,9 @@ public class SkyTalk extends Application {
 
                     places.put(placeName, zonedDate);
                 } catch (Exception e) {
-                    addMessage(chatPane, "Bot",ChatBot.respond("Invalid date format for " + placeName + ". Please enter date in format dd/MM/yyyy."), true);
-
+                    addMessage(chatPane, "Bot", ChatBot.respond(
+                            "Invalid date format for " + placeName + ". Please enter date in format dd/MM/yyyy."),
+                            true);
 
                 }
             }
@@ -337,18 +350,18 @@ public class SkyTalk extends Application {
                 placesAndDates.append(" " + place + ": " + places.get(place).format(formatter) + "\n");
             }
 
-            addMessage(chatPane, "Bot",ChatBot.respond(placesAndDates.toString()) , true);
+            addMessage(chatPane, "Bot", ChatBot.respond(placesAndDates.toString()), true);
             if (places.size() >= MAXPLACES) {
-                addMessage(chatPane, "Bot",ChatBot.respond("Maximum number of places reached.") , true);
+                addMessage(chatPane, "Bot", ChatBot.respond("Maximum number of places reached."), true);
                 validInput = true;
             } else {
 
-                addMessage(chatPane, "Bot",ChatBot.respond("Do you want to add more places? (yes/no)") , true);
+                addMessage(chatPane, "Bot", ChatBot.respond("Do you want to add more places? (yes/no)"), true);
                 String moreInput = gui.input();
                 if (!moreInput.equals("yes")) {
                     validInput = true;
                 } else {
-                    addMessage(chatPane, "Bot",ChatBot.respond("Enter place you plan to visit and date: ") , true);
+                    addMessage(chatPane, "Bot", ChatBot.respond("Enter place you plan to visit and date: "), true);
                     input = gui.input();
                 }
             }
@@ -427,7 +440,8 @@ public class SkyTalk extends Application {
     public static HashMap<String, Double> getForecast(double[] coordinate, String date) {
         String urlStr = "https://api.openweathermap.org/data/3.0/onecall/day_summary?lat=" + coordinate[0] +
                 "&lon=" + coordinate[1] + "&units=metric&date=" + date + "&appid=" + WEATHER_API_KEY;
-        JSONObject response = new JSONObject(call(urlStr));
+        JSONObject response = new JSONObject();
+        response.put("response",call(urlStr));
 /* format:
  *
 {
@@ -466,17 +480,30 @@ public class SkyTalk extends Application {
 
  */
         HashMap<String, Double> data = new HashMap<>();
-        data.put("min_temp",response.getJSONObject("temperature").getDouble("min"));
-        data.put("max_temp",response.getJSONObject("temperature").getDouble("max"));
-        data.put("wind_speed",response.getJSONObject("wind").getJSONObject("max").getDouble("speed"));
-        data.put("precipitation",response.getJSONObject("precipitation").getDouble("total"));
-        data.put("cloud_cover", response.getJSONObject("cloud_cover").getDouble("afternoon"));
+        data.put("min_temp",(Double)
+        (
+            (JSONObject)response.get("temperature")
+        ).get("min"));
+
+
+        data.put("max_temp",(Double)
+        (
+            (JSONObject)response.get("temperature")
+        ).get("max"));
+
+        data.put("precipitation",(Double)(
+            (JSONObject)response.get("precipitation")
+        ).get("total"));
+
+        data.put("cloud_cover", (Double)(
+            (JSONObject)response.get("cloud_cover")
+        ).get("afternoon"));
         return data;
     }
 
     public static String generateResponse(HashMap<String, ZonedDateTime> places) throws IOException, ParseException {
         StringBuilder builder = new StringBuilder();
-// for each city in the hashmap, get its coordinates
+        // for each city in the hashmap, get its coordinates
         for (String city : places.keySet()) {
             double[] coordinates = cityToCoordinate(city);
             ZonedDateTime time = places.get(city);
@@ -507,7 +534,6 @@ public class SkyTalk extends Application {
 
             builder.append("cloud cover: " + weather.get("cloud_cover") + "%\n");
             builder.append("precipitation: " + weather.get("precipitation") + "cm\n");
-            builder.append("wind speed: " + weather.get("wind_speed") + "km/h \n");
 
 
 
