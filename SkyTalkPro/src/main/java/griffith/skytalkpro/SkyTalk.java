@@ -1,7 +1,5 @@
 package griffith.skytalkpro;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
 import javafx.animation.TranslateTransition;
@@ -26,23 +24,19 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.simple.parser.ParseException;
+
 
 
 public class SkyTalk extends Application {
-    private static final String BASE_URL = "http://api.weatherapi.com/v1";
-    private static final String API_KEY = "7402bc32917148ce907223855241304";
+    //private static final String BASE_URL = "http://api.weatherapi.com/v1";
+    //private static final String API_KEY = "7402bc32917148ce907223855241304";
     private static HashMap<String, LocalDate> places = new HashMap<>();
     private static final int MAXPLACES = 5;
 
@@ -52,9 +46,9 @@ public class SkyTalk extends Application {
 
     // Each weather condition has its own unique code (Multilingual Condition list
     // URL: https://www.weatherapi.com/docs/conditions.json)
-    private static int[] rainCodes = new int[] { 1063, 1066, 1069, 1072, 1087, 1114, 1150, 1153, 1171, 1180, 1183, 1186,
-            1189, 1192, 1195, 1198, 1201, 1204, 1207, 1240, 1243, 1246, 1249, 1252, 1255, 1264, 1273, 1276 };
-    private static int sunCode = 1000;
+    //private static int[] rainCodes = new int[] { 1063, 1066, 1069, 1072, 1087, 1114, 1150, 1153, 1171, 1180, 1183, 1186,
+    //1189, 1192, 1195, 1198, 1201, 1204, 1207, 1240, 1243, 1246, 1249, 1252, 1255, 1264, 1273, 1276 };
+   // private static int sunCode = 1000;
 
     private static boolean umbrellaIsNeeded = false;
     private static boolean sunglassesIsNeeded = false;
@@ -62,7 +56,7 @@ public class SkyTalk extends Application {
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 
-    private ChatBot chatBot;
+    private static Weather weather;
     static VBox chatPane = new VBox();
 
     static String lastInput;
@@ -78,7 +72,6 @@ public class SkyTalk extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        chatBot = new ChatBot();
 
         BorderPane root = new BorderPane();
 
@@ -107,7 +100,15 @@ public class SkyTalk extends Application {
         inputField.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 handleInput(inputField);
-                sendMessage(chatPane, inputField);
+                try {
+                    sendMessage(chatPane, inputField);
+                } catch (ParseException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (java.text.ParseException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -121,7 +122,15 @@ public class SkyTalk extends Application {
         sendButton.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 handleInput(inputField);
-                sendMessage(chatPane, inputField);
+                try {
+                    sendMessage(chatPane, inputField);
+                } catch (ParseException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (java.text.ParseException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -138,7 +147,15 @@ public class SkyTalk extends Application {
             optionButton.setOnMouseExited(e -> optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
             optionButton.setOnAction(event -> {
                 inputField.setText(option);
-                sendMessage(chatPane, inputField);
+                try {
+                    sendMessage(chatPane, inputField);
+                } catch (ParseException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (java.text.ParseException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
                 String input;
             });
 
@@ -178,7 +195,7 @@ public class SkyTalk extends Application {
 
 
     // Method to send a message
-    private void sendMessage(VBox chatPane, TextField inputField) {
+    private void sendMessage(VBox chatPane, TextField inputField) throws ParseException, java.text.ParseException {
         String userInput = inputField.getText();
         System.out.println(lastInput);
         addMessage(chatPane, "You", userInput, false);
@@ -293,6 +310,7 @@ public class SkyTalk extends Application {
 
             for (String placeWithDate : data) {
                 String[] placeInfo = placeWithDate.trim().split(" ");
+                //if placeInfo isnt an array size two [place, date]
                 if (placeInfo.length != 2) {
                     output("Invalid input format. Please enter place and date separated by a space.");
                     continue;
@@ -313,112 +331,149 @@ public class SkyTalk extends Application {
             }
             output(placesAndDates.toString());
             validInput = true;
-//            if (places.size() >= MAXPLACES) {
-//                output("Maximum number of places reached.");
-//                validInput = true;
-//            } else {
-//                output("Do you want to add more places? (yes/no)");
-//
-//                String moreInput = input();
-//                if (!moreInput.equals("yes")) {
-//                    validInput = true;
-//                } else {
-//                    output("Enter place you plan to visit and date: ");
-//                    input = input();
-//                }
-//            }
+        //    if (places.size() >= MAXPLACES) {
+        //        output("Maximum number of places reached.");
+        //        validInput = true;
+        //    } else {
+        //        output("Do you want to add more places? (yes/no)");
+
+        //        String moreInput = input();
+        //        if (!moreInput.equals("yes")) {
+        //            validInput = true;
+        //        } else {
+        //            output("Enter place you plan to visit and date: ");
+        //            input = input();
+        //        }
+        //    }
         }
 
         return places;
     }
 
-    public static String generateResponse(HashMap<String, LocalDate> places) {
+    public static String generateResponse(HashMap<String, LocalDate> places) throws ParseException, java.text.ParseException {
         // Reset variables
         minTemperature = 100;
         maxTemperature = 0;
         umbrellaIsNeeded = false;
         sunglassesIsNeeded = false;
 
-        for (String location : places.keySet()) {
-            getForecast(location, places.get(location));
-        }
+        StringBuilder builder = new StringBuilder();
+        // for each city in the hashmap, get its coordinates
+        for (String city : places.keySet()) {
+            builder.append("PLAN FOR: " + city);
+            double[] coordinates = weather.cityToCoordinate(city);
 
-        return generateClothingPlan(minTemperature, maxTemperature, umbrellaIsNeeded, sunglassesIsNeeded);
+            LocalDate time = places.get(city);
+            //long timeUnix = time.toInstant().atZone(ZoneId.of(timezoneFromCoordinate(coordinates))).toEpochSecond();
+
+            // Get year, month, and day
+            int year = time.getYear();
+            int month = time.getMonthValue();
+            int day = time.getDayOfMonth();
+
+            // Format them into year-month-day format
+            String formattedDate = String.format("%04d-%02d-%02d", year, month, day);
+
+
+            HashMap<String, Double> weatherData = weather.getForecast(coordinates, formattedDate);
+
+            double minTemp = weatherData.get("min_temp");
+            double maxTemp = weatherData.get("max_temp");
+
+            //if rainfall above 5cm, recommend umbrella
+            //if cloud cover below 10%, recommend sunglasses
+            boolean umbrellaNeeded = weatherData.get("precipitation") > 5;
+            boolean sunglassesNeeded = weatherData.get("cloud_cover")<10;
+
+            builder.append("temperature for " + city + " at " + time + ": \n");
+            builder.append("minimum temperature: " + weatherData.get("min_temp") + "C | ");
+            builder.append("maximum temperature: " + weatherData.get("max_temp") + "C \n");
+
+            builder.append("cloud cover: " + weatherData.get("cloud_cover") + "%\n");
+            builder.append("precipitation: " + weatherData.get("precipitation") + "cm\n");
+
+
+
+            String clothingPlan = generateClothingPlan(minTemp,maxTemp,umbrellaNeeded,sunglassesNeeded);
+            builder.append(clothingPlan);
+            builder.append("\n");
+        }
+        return builder.toString();
 
     }
 
-    private static void getForecast(String location, LocalDate date) {
-        try {
-            // Adjust the start date to the current date
-            String formattedForecastDate = date.toString();
+    // private static void getForecast(String location, LocalDate date) {
+    //     try {
+    //         // Adjust the start date to the current date
+    //         String formattedForecastDate = date.toString();
 
-            // Construct the URL with API key and adjusted date
-            String urlStr = BASE_URL + "/forecast.json?key=" + API_KEY + "&q=" + URLEncoder.encode(location, "UTF-8")
-                    + "&dt=" + formattedForecastDate;
-            //System.out.println(urlStr);
-            URL url = new URL(urlStr);
+    //         // Construct the URL with API key and adjusted date
+    //         String urlStr = BASE_URL + "/forecast.json?key=" + API_KEY + "&q=" + URLEncoder.encode(location, "UTF-8")
+    //                 + "&dt=" + formattedForecastDate;
+    //         //System.out.println(urlStr);
+    //         URL url = new URL(urlStr);
 
-            // Make API call with adjusted date
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
+    //         // Make API call with adjusted date
+    //         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    //         connection.setRequestMethod("GET");
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-            reader.close();
+    //         BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+    //         StringBuilder response = new StringBuilder();
+    //         String line;
+    //         while ((line = reader.readLine()) != null) {
+    //             response.append(line);
+    //         }
+    //         reader.close();
 
-            // Parse JSON response
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(response.toString());
+    //         // Parse JSON response
+    //         ObjectMapper mapper = new ObjectMapper();
+    //         JsonNode root = mapper.readTree(response.toString());
 
-            // Check if forecast node exists and is not empty
-            JsonNode forecastNode = root.get("forecast");
-            if (forecastNode != null && forecastNode.has("forecastday") && forecastNode.get("forecastday").isArray()) {
-                // Access forecast data
-                JsonNode forecastdayArray = forecastNode.get("forecastday");
-                JsonNode firstForecastDay = forecastdayArray.get(0);
-                JsonNode dayNode = firstForecastDay.get("day"); // Access the "day" node
-                if (dayNode != null) {
+    //         // Check if forecast node exists and is not empty
+    //         JsonNode forecastNode = root.get("forecast");
+    //         if (forecastNode != null && forecastNode.has("forecastday") && forecastNode.get("forecastday").isArray()) {
+    //             // Access forecast data
+    //             JsonNode forecastdayArray = forecastNode.get("forecastday");
+    //             JsonNode firstForecastDay = forecastdayArray.get(0);
+    //             JsonNode dayNode = firstForecastDay.get("day"); // Access the "day" node
+    //             if (dayNode != null) {
 
-                    double currentMinTemp = dayNode.get("mintemp_c").asDouble();
-                    if (currentMinTemp < minTemperature) {
-                        minTemperature = currentMinTemp;
-                    }
+    //                 double currentMinTemp = dayNode.get("mintemp_c").asDouble();
+    //                 if (currentMinTemp < minTemperature) {
+    //                     minTemperature = currentMinTemp;
+    //                 }
 
-                    double currentmaxTemp = dayNode.get("maxtemp_c").asDouble();
-                    if (currentmaxTemp > maxTemperature) {
-                        maxTemperature = currentmaxTemp;
-                    }
+    //                 double currentmaxTemp = dayNode.get("maxtemp_c").asDouble();
+    //                 if (currentmaxTemp > maxTemperature) {
+    //                     maxTemperature = currentmaxTemp;
+    //                 }
 
-                    JsonNode condition = dayNode.get("condition");
-                    int currectCode = condition.get("code").asInt();
+    //                 JsonNode condition = dayNode.get("condition");
+    //                 int currectCode = condition.get("code").asInt();
 
-                    for (int code : rainCodes) {
-                        if (currectCode == code) {
-                            umbrellaIsNeeded = true;
-                            break;
-                        }
-                    }
+    //                 for (int code : rainCodes) {
+    //                     if (currectCode == code) {
+    //                         umbrellaIsNeeded = true;
+    //                         break;
+    //                     }
+    //                 }
 
-                    if (currectCode == sunCode) {
-                        sunglassesIsNeeded = true;
-                    }
+    //                 if (currectCode == sunCode) {
+    //                     sunglassesIsNeeded = true;
+    //                 }
 
-                    // You can extract more data similarly and structure your return object
-                } else {
-                    output("No forecast data found for the given date and location.");
-                }
-            } else {
-                output("No forecast data found for the given date and location.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    //                 // You can extract more data similarly and structure your return object
+    //             } else {
+    //                 output("No forecast data found for the given date and location.");
+    //             }
+    //         } else {
+    //             output("No forecast data found for the given date and location.");
+    //         }
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
 
-        }
-    }
+    //     }
+    // }
 
     public static String generateClothingPlan(double minTemperature, double maxTemperature, boolean umbrellaIsNeeded,
                                               boolean sunglassesIsNeeded) {
