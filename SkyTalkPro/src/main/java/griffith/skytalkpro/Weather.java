@@ -104,6 +104,7 @@ public class Weather {
     // getForecast() returns the weather conditions for a given coordinate and date
 	public static HashMap<String, Double> getForecast(double[] coordinate, String date) throws org.json.simple.parser.ParseException {
 		String urlStr = "https://api.openweathermap.org/data/3.0/onecall/day_summary?lat="+coordinate[0]+"&lon="+coordinate[1]+"&units=metric&date="+date+"&appid="+WEATHER_API_KEY;
+		System.out.println(urlStr);
 		//convert the API response string into a JSON Object
         JSONObject response = (JSONObject)parser.parse(call(urlStr));
 		/* format:
