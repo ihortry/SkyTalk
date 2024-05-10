@@ -4,15 +4,18 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 
 import org.junit.Test;
 
 public class SkyTalkTest {
-    // initialise new instance of Weather for testing weather-related functions, and
+    // initialise new instance of Weather for testing weather-related functions,
     // ClothingRecommendation for clothing recommendation methods
+    //and Skytalk for Skytalk methods
     static Weather weather = new Weather();
     static ClothingRecommendation clothingRecommendation = new ClothingRecommendation();
+    static SkyTalk skytalk;
     // example cities
     static double[] dublinCoordinates = { 53.33306, -6.24889 };
     static double[] addisAbabaCoordinates = { 9.005401, 38.763611 };
@@ -165,13 +168,64 @@ public class SkyTalkTest {
         }
     }
 
-    public void integratedTest() {
-        // TODO
-        // test that sendMessage() returns '"Type \"exit\" or enter new locations to
-        // continue\n (For example: London 25/06/2024, Paris 26/06/2024, Rome
-        // 27/06/2024):"
-        // test that takeUserInput() returns a places hashmap
-        // test generateClothingPlan()
+    /* i wasn't able to write a test for skytalk as trying to initialise it or use its method would give me this error:
+    java.lang.ExceptionInInitializerError
+        at griffith.skytalkpro/griffith.skytalkpro.SkyTalk.addMessage(SkyTalk.java:272)
+        at griffith.skytalkpro/griffith.skytalkpro.SkyTalk.output(SkyTalk.java:246)
+        at griffith.skytalkpro/griffith.skytalkpro.SkyTalk.takeUserInput(SkyTalk.java:332)
+        at griffith.skytalkpro/griffith.skytalkpro.SkyTalkTest.testUserInput(SkyTalkTest.java:175)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+        at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:45)
+        at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)
+        at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:42)
+        at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20)
+        at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:263)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:68)
+        at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:47)
+        at org.junit.runners.ParentRunner$3.run(ParentRunner.java:231)
+        at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:60)
+        at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:229)
+        at org.junit.runners.ParentRunner.access$000(ParentRunner.java:50)
+        at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:222)
+        at org.junit.runners.ParentRunner.run(ParentRunner.java:300)
+        at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:93)
+        at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:40)
+        at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:529)
+        at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:757)
+        at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:452)
+        at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:210)
+Caused by: java.lang.IllegalStateException: Toolkit not initialized
+        at javafx.graphics/com.sun.javafx.application.PlatformImpl.runLater(PlatformImpl.java:437)
+        at javafx.graphics/com.sun.javafx.application.PlatformImpl.runLater(PlatformImpl.java:432)
+        at javafx.graphics/com.sun.javafx.application.PlatformImpl.setPlatformUserAgentStylesheet(PlatformImpl.java:725)
+        at javafx.graphics/com.sun.javafx.application.PlatformImpl.setDefaultPlatformUserAgentStylesheet(PlatformImpl.java:687)
+        at javafx.controls/javafx.scene.control.Control.<clinit>(Control.java:99)
+        ... 27 more
+     * 
+     */
 
+
+    // @Test
+    // public void testUserInput(){
+    //     // test that takeUserInput() returns a places hashmap
+    //     String input = "Dublin 06/06/2024";
+    //     HashMap<String, LocalDate> place = skytalk.takeUserInput(input);
+    //     for (HashMap.Entry<String, LocalDate> entry : place.entrySet()) {
+    //         String key = entry.getKey();
+    //         LocalDate value = entry.getValue();
+    //         System.out.println("Key: " + key + ", Value: " + value.toString());
+    //     }
+
+    // }
+
+    @Test
+    public void testGenerateClothingPlan(){
+        String recommendation = clothingRecommendation.generateClothingPlan(5,12,true,false);
+        System.out.println(recommendation);
+        //replace newlines with spaces
+        assertEquals("My Suggestion: \nSince the lowest temperature during the entire trip will be 5.0 degrees \nCelsius and the highest 12.0 degrees Celsius.\n Put on a Long Sleeves and Jeans.\n There is a high chance of rain during your trip,\n so take an umbrella or a raincoat.🌧".replace('\n',' '),recommendation.replace('\n',' '));
     }
 }
