@@ -75,7 +75,6 @@ public class SkyTalk extends Application {
         BorderPane root = new BorderPane();
 
         // Container for displaying chat messages
-        //VBox chatPane = new VBox();
         chatPane.setStyle("-fx-background-color: #f0f0f0;");
         chatPane.setPadding(new Insets(10));
         ScrollPane scrollPane = new ScrollPane(chatPane);
@@ -83,51 +82,55 @@ public class SkyTalk extends Application {
         scrollPane.setFitToHeight(true);
         scrollPane.setStyle("-fx-background:transparent;");
 
-        // Bind the scroll position to the bottom
+        /*
+         *  Bind the scroll position to the bottom
+         */
         scrollPane.vvalueProperty().bind(chatPane.heightProperty());
 
-        // Input box for typing messages
+        /*
+         * Input box for typing messages
+         */
         HBox inputBox = new HBox(5);
         inputBox.setPadding(new Insets(10));
         inputBox.setAlignment(Pos.CENTER);
 
-        // Text field for user input
-        //TextField inputField = new TextField();
+        /*
+         * Text field for user input
+         */
         inputField.setPromptText("Type here...");
         inputField.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: #ffffff; -fx-background-radius: 10;");
-        //inputField.setOnAction(event -> sendMessage(chatPane, inputField));
         inputField.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 handleInput(inputField);
                 try {
                     sendMessage(chatPane, inputField);
                 } catch (ParseException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 } catch (java.text.ParseException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
         });
 
 
-        // Button for sending messages
+        /*
+         * Button for sending messages
+         */
         Button sendButton = new Button("Send");
+        /*
+         * Set button style and action after pressing it
+         */
         sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;");
         sendButton.setOnMouseEntered(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #45a049, #4CAF50); -fx-text-fill: white; -fx-background-radius: 10;"));
         sendButton.setOnMouseExited(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
-        //sendButton.setOnAction(event -> sendMessage(chatPane, inputField));
         sendButton.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 handleInput(inputField);
                 try {
                     sendMessage(chatPane, inputField);
                 } catch (ParseException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 } catch (java.text.ParseException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -148,31 +151,37 @@ public class SkyTalk extends Application {
                 try {
                     sendMessage(chatPane, inputField);
                 } catch (ParseException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 } catch (java.text.ParseException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
                 String input;
             });
 
-            // Add margin to the option button
+            /*
+             * Add margin to the option button
+             */
             VBox.setMargin(optionButton, buttonMargin);
 
             optionsBox.getChildren().add(optionButton);
         }
-
-        // Add input field and send button to the input box
+        
+        /*
+         *  Add input field and send button to the input box
+         */
         inputBox.getChildren().addAll(inputField, sendButton);
         VBox.setVgrow(scrollPane, javafx.scene.layout.Priority.ALWAYS);
-
-        // Set the layout components to the root layout
+        
+        /*
+         * Set the layout components to the root layout
+         */
         root.setCenter(scrollPane);
         root.setBottom(inputBox);
         root.setRight(optionsBox);
 
-        // Create the scene and set it to the stage
+        /*
+         * Create the scene and set it to the stage
+         */
         Scene scene = new Scene(root, 500, 400);
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
         primaryStage.setTitle("Impressive ChatBot");
