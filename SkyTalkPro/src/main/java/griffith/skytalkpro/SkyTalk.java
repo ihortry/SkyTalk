@@ -184,7 +184,7 @@ public class SkyTalk extends Application {
 
         output("Welcome to SkyTalk Chatbot!");
         output("Enter up to 5 places you plan to visit and dates to plan your clothing requirements.");
-        output("For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024");
+        output("For example: London 25/06/2024, Paris 26/06/2024, Rome 27/06/2024");
     }
 
     public void handleInput(TextField inputField){
@@ -229,7 +229,7 @@ public class SkyTalk extends Application {
                 output(generateResponse(places));
 
                 output("Type \"exit\" or enter new locations to continue\n"
-                        + "(For example: London 25/04/2024, Paris 26/04/2024, Rome 27/04/2024):");
+                        + "(For example: London 25/06/2024, Paris 26/06/2024, Rome 27/06/2024):");
 
             }
         }

@@ -1,5 +1,6 @@
 package griffith.skytalkpro;
 
+//class for the clothing recommendation method
 public class ClothingRecommendation {
 
     public static String generateClothingPlan(double minTemperature, double maxTemperature, boolean umbrellaIsNeeded,
