@@ -1,3 +1,8 @@
+/**
+ * 	@author Oleksii Babii 3104984 Ihor Tryndey 3105023
+ *  @version 3.0
+ *  @since 2024
+ */
 package griffith.skytalkpro;
 import javafx.animation.FadeTransition;
 import javafx.animation.PauseTransition;
@@ -25,20 +30,42 @@ import org.json.simple.parser.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
-
+/**
+ * 
+ * @author Oleksii Babii 3104984 Ihor Tryndey 3105023
+ *
+ * Class SkyTalk which extends Application class
+ * this class create graphical user interface for the chatbot
+ */
 public class SkyTalk extends Application {
 
     static VBox chatPane = new VBox();
+    
+    /*
+     * An instance of the chatBot
+     */
     ChatBot chatbot = new ChatBot(chatPane);
+    
+    /*
+     * The variable which contain the last input to the chatbot
+     */
     static String lastInput;
 
+    /*
+     * The variable for TextField 
+     * this is the place where we take our input
+     */
     TextField inputField = new TextField();
 
-    // Predefined options for the user to choose from
+    /*
+     * Predefined options for the user to choose from
+     */
     private List<String> predefinedOptions = Arrays.asList(
             "Option 1",
             "Option 2",
-            "Option 3"
+            "Option 3",
+            "Option 4",
+            "Option 5"
     );
 
     @Override
@@ -161,20 +188,31 @@ public class SkyTalk extends Application {
         System.out.println("Handle " + lastInput);
     }
 
-    // Method to send a message
+    /**
+     * Method send message that send message to chat panel 
+     * @param chatPane
+     * @param inputField
+     * @throws ParseException
+     * @throws java.text.ParseException
+     */
     private void sendMessage(VBox chatPane, TextField inputField) throws ParseException, java.text.ParseException {
         String userInput = inputField.getText();
         System.out.println(lastInput);
         addMessage(chatPane, "You", userInput, false);
-        //lastInput = userInput;
 
-        // Add a delay before the bot responds
+        /*
+         * Add a delay before the bot responds
+         */
         PauseTransition pauseTransition = new PauseTransition(Duration.seconds(1));
         pauseTransition.play();
         inputField.clear();
         chatbot.run();
     }
 
+    /**
+     * Method to get an input
+     * @return
+     */
     public static String input() {
         String temp = new String(lastInput);
         lastInput = null;
@@ -185,7 +223,14 @@ public class SkyTalk extends Application {
         addMessage(chatPane, "Bot", message, true);
     }
 
-    // Method to add a message to the chat pane
+  
+    /**
+     * Method addMessage to add a message to the chat pane
+     * @param chatPane
+     * @param sender
+     * @param message
+     * @param isBot
+     */
     public  void addMessage(VBox chatPane, String sender, String message, boolean isBot) {
         StackPane messageContainer = new StackPane();
         messageContainer.setPadding(new Insets(5));
@@ -237,6 +282,11 @@ public class SkyTalk extends Application {
         translateTransition.play();
         fadeTransition.play();
     }
+    
+    /**
+     * The main class where lunching of our chatbot is proceeding
+     * @param args
+     */
     public static void main(String[] args) {
         launch(args);
     }
