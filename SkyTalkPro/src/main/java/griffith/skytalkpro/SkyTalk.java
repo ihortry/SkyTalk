@@ -25,30 +25,24 @@ import org.json.simple.parser.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
-
 public class SkyTalk extends Application {
+    private static VBox chatPane = new VBox();
+    private ChatBot chatbot = new ChatBot(chatPane);
+    private static String lastInput;
+    private Boolean optionSelected = false;
 
-    static VBox chatPane = new VBox();
-    ChatBot chatbot = new ChatBot(chatPane);
-    static String lastInput;
-
-    TextField inputField = new TextField();
+    private TextField inputField = new TextField();
 
     // Predefined options for the user to choose from
     private List<String> predefinedOptions = Arrays.asList(
-            "Option 1",
-            "Option 2",
-            "Option 3"
+            "Get suggestions \nfor current location"
     );
-
     @Override
     public void start(Stage primaryStage) {
         ChatBot chatbot = new ChatBot(chatPane);
-
         BorderPane root = new BorderPane();
 
         // Container for displaying chat messages
-        //VBox chatPane = new VBox();
         chatPane.setStyle("-fx-background-color: #f0f0f0;");
         chatPane.setPadding(new Insets(10));
         ScrollPane scrollPane = new ScrollPane(chatPane);
@@ -90,7 +84,6 @@ public class SkyTalk extends Application {
         sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;");
         sendButton.setOnMouseEntered(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #45a049, #4CAF50); -fx-text-fill: white; -fx-background-radius: 10;"));
         sendButton.setOnMouseExited(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
-        //sendButton.setOnAction(event -> sendMessage(chatPane, inputField));
         sendButton.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 handleInput(inputField);
@@ -106,7 +99,6 @@ public class SkyTalk extends Application {
             }
         });
 
-
         VBox optionsBox = new VBox(5);
         optionsBox.setAlignment(Pos.CENTER);
 
@@ -117,6 +109,7 @@ public class SkyTalk extends Application {
             optionButton.setOnMouseEntered(e -> optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #45a049, #4CAF50); -fx-text-fill: white; -fx-background-radius: 10;"));
             optionButton.setOnMouseExited(e -> optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
             optionButton.setOnAction(event -> {
+                setOption();
                 inputField.setText(option);
                 try {
                     sendMessage(chatPane, inputField);
@@ -154,6 +147,15 @@ public class SkyTalk extends Application {
         output("Welcome to SkyTalk Chatbot!");
         output("Enter up to 5 places you plan to visit and dates to plan your clothing requirements.");
         output("For example: London 25/06/2024, Paris 26/06/2024, Rome 27/06/2024");
+    }
+
+    public void setOption() {
+        optionSelected = true;
+    }
+
+
+    public boolean isOptionSelected(){
+        return optionSelected;
     }
 
     public void handleInput(TextField inputField){
