@@ -1,5 +1,4 @@
-/**
- * 	@author Oleksii Babii 3104984 Ihor Tryndey 3105023
+/**   @author Oleksii Babii 3104984 Ihor Tryndey 3105023
  *  @version 3.0
  *  @since 2024
  */
@@ -30,73 +29,55 @@ import org.json.simple.parser.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * 
- * @author Oleksii Babii 3104984 Ihor Tryndey 3105023
+/** @author Oleksii Babii 3104984 Ihor Tryndey 3105023
  *
  * Class SkyTalk which extends Application class
  * this class create graphical user interface for the chatbot
- */
+*/
 public class SkyTalk extends Application {
+    private static VBox chatPane = new VBox();
+    private ChatBot chatbot = new ChatBot(chatPane);
+    private static String lastInput;
+    private Boolean optionSelected = false;
 
-    static VBox chatPane = new VBox();
-    
-    /*
-     * An instance of the chatBot
-     */
-    ChatBot chatbot = new ChatBot(chatPane);
-    
-    /*
-     * The variable which contain the last input to the chatbot
-     */
-    static String lastInput;
+    private TextField inputField = new TextField();
 
-    /*
-     * The variable for TextField 
-     * this is the place where we take our input
-     */
-    TextField inputField = new TextField();
-
-    /*
-     * Predefined options for the user to choose from
-     */
+    // Predefined options for the user to choose from
     private List<String> predefinedOptions = Arrays.asList(
-            "Option 1",
-            "Option 2",
-            "Option 3",
-            "Option 4",
-            "Option 5"
+            "Get suggestions \nfor current location"
     );
-
     @Override
     public void start(Stage primaryStage) {
+    	/*
+    	 * An instance of the chatBot
+    	 */
         ChatBot chatbot = new ChatBot(chatPane);
-
         BorderPane root = new BorderPane();
 
-        // Container for displaying chat messages
+        /*
+         * Container for displaying chat messages
+         */
         chatPane.setStyle("-fx-background-color: #f0f0f0;");
         chatPane.setPadding(new Insets(10));
         ScrollPane scrollPane = new ScrollPane(chatPane);
+        /*
+         * Set action and apply style on scroll panel
+         */
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
         scrollPane.setStyle("-fx-background:transparent;");
 
         /*
-         *  Bind the scroll position to the bottom
+         * Bind the scroll position to the bottom
          */
         scrollPane.vvalueProperty().bind(chatPane.heightProperty());
 
-        /*
-         * Input box for typing messages
-         */
+        // Input box for typing messages
         HBox inputBox = new HBox(5);
         inputBox.setPadding(new Insets(10));
         inputBox.setAlignment(Pos.CENTER);
 
-        /*
-         * Text field for user input
-         */
+        // Text field for user input
         inputField.setPromptText("Type here...");
         inputField.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: #ffffff; -fx-background-radius: 10;");
         inputField.setOnAction(new EventHandler<ActionEvent>() {
@@ -117,9 +98,6 @@ public class SkyTalk extends Application {
          * Button for sending messages
          */
         Button sendButton = new Button("Send");
-        /*
-         * Set button style and action after pressing it
-         */
         sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;");
         sendButton.setOnMouseEntered(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #45a049, #4CAF50); -fx-text-fill: white; -fx-background-radius: 10;"));
         sendButton.setOnMouseExited(e -> sendButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
@@ -136,7 +114,7 @@ public class SkyTalk extends Application {
             }
         });
 
-
+        
         VBox optionsBox = new VBox(5);
         optionsBox.setAlignment(Pos.CENTER);
 
@@ -147,41 +125,36 @@ public class SkyTalk extends Application {
             optionButton.setOnMouseEntered(e -> optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #45a049, #4CAF50); -fx-text-fill: white; -fx-background-radius: 10;"));
             optionButton.setOnMouseExited(e -> optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
             optionButton.setOnAction(event -> {
+                setOption();
                 inputField.setText(option);
                 try {
                     sendMessage(chatPane, inputField);
                 } catch (ParseException e1) {
+                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 } catch (java.text.ParseException e1) {
+                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
                 String input;
             });
 
-            /*
-             * Add margin to the option button
-             */
+            // Add margin to the option button
             VBox.setMargin(optionButton, buttonMargin);
 
             optionsBox.getChildren().add(optionButton);
         }
-        
-        /*
-         *  Add input field and send button to the input box
-         */
+
+        // Add input field and send button to the input box
         inputBox.getChildren().addAll(inputField, sendButton);
         VBox.setVgrow(scrollPane, javafx.scene.layout.Priority.ALWAYS);
-        
-        /*
-         * Set the layout components to the root layout
-         */
+
+        // Set the layout components to the root layout
         root.setCenter(scrollPane);
         root.setBottom(inputBox);
         root.setRight(optionsBox);
 
-        /*
-         * Create the scene and set it to the stage
-         */
+        // Create the scene and set it to the stage
         Scene scene = new Scene(root, 500, 400);
         scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
         primaryStage.setTitle("Impressive ChatBot");
@@ -192,13 +165,25 @@ public class SkyTalk extends Application {
         output("For example: London 25/06/2024, Paris 26/06/2024, Rome 27/06/2024");
     }
 
+    public void setOption() {
+        optionSelected = true;
+    }
+
+
+    public boolean isOptionSelected(){
+        return optionSelected;
+    }
+
+    /**
+     * Method that handle user input
+     * @param inputField
+     */
     public void handleInput(TextField inputField){
         lastInput = inputField.getText();
         System.out.println("Handle " + lastInput);
     }
 
-    /**
-     * Method send message that send message to chat panel 
+    /** Method send message that send message to chat panel 
      * @param chatPane
      * @param inputField
      * @throws ParseException
@@ -218,9 +203,8 @@ public class SkyTalk extends Application {
         chatbot.run();
     }
 
-    /**
-     * Method to get an input
-     * @return
+    /** Method to get an input
+     *  @return
      */
     public static String input() {
         String temp = new String(lastInput);
@@ -232,14 +216,12 @@ public class SkyTalk extends Application {
         addMessage(chatPane, "Bot", message, true);
     }
 
-  
-    /**
-     * Method addMessage to add a message to the chat pane
-     * @param chatPane
-     * @param sender
-     * @param message
-     * @param isBot
-     */
+    /** Method addMessage to add a message to the chat pane
+    * @param chatPane
+    * @param sender
+    * @param message
+    * @param isBot
+    */
     public  void addMessage(VBox chatPane, String sender, String message, boolean isBot) {
         StackPane messageContainer = new StackPane();
         messageContainer.setPadding(new Insets(5));
@@ -251,7 +233,9 @@ public class SkyTalk extends Application {
         messageBox.setPadding(new Insets(5));
         messageBox.setAlignment(Pos.CENTER);
 
-        // Customize the border style for bot and user messages
+        /*
+         * Customise the border style for bot and user messages
+         */
         String borderColor = isBot ? "#0099FF" : "#4CAF50";
         String backgroundColor = isBot ? "#B3E5FC" : "#C8E6C9";
         String textColor = isBot ? "#000000" : "#000000";
@@ -262,6 +246,9 @@ public class SkyTalk extends Application {
         imageView.setFitWidth(30);
         imageView.setFitHeight(30);
 
+        /*
+         * Creation an instance of the textArea for message
+         */
         TextArea messageText = new TextArea(message);
         messageText.setFont(Font.font("Arial", 12));
         messageText.setEditable(false);
@@ -276,10 +263,14 @@ public class SkyTalk extends Application {
         messageContainer.getChildren().add(messageBox);
         chatPane.getChildren().add(messageContainer);
 
-        // Align messageContainer to the appropriate side
+        /*
+         * Align messageContainer to the appropriate side
+         */
         messageContainer.setAlignment(isBot ? Pos.CENTER_LEFT : Pos.CENTER_RIGHT);
 
-        // Animation
+        /*
+         * Animation to make messages appear smoothly 
+         */
         TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(0.5), messageContainer);
         translateTransition.setFromX(isBot ? -400 : 400);
         translateTransition.setToX(0);
@@ -292,9 +283,8 @@ public class SkyTalk extends Application {
         fadeTransition.play();
     }
     
-    /**
-     * The main class where lunching of our chatbot is proceeding
-     * @param args
+    /** The main class where lunching of our chatbot is proceeding
+     *  @param args
      */
     public static void main(String[] args) {
         launch(args);

@@ -24,7 +24,6 @@ class ChatBot {
 
     public ChatBot(VBox chatPane) {
         this.chatPane = chatPane;
-
     }
 
     public void run() throws ParseException, org.json.simple.parser.ParseException {
@@ -32,28 +31,26 @@ class ChatBot {
         String input;
 
         while (true) {
-            System.out.println("Intup: ");
             input = skyTalk.input();
-            System.out.println("Intup: " + input);
+            System.out.println(skyTalk.isOptionSelected());
             if (input.equalsIgnoreCase("exit")) {
                 skyTalk.output("Exiting SkyTalk Chatbot. Have a great day!");
                 Platform.exit(); // Terminate the JavaFX application
                 break;
             } else {
-                places = takeUserInput(input);
-                StringBuilder finalPlaces = new StringBuilder();
-                finalPlaces.append("Final Places and dates:\n");
-                for (String place : places.keySet()) {
-                    finalPlaces.append("  " + place + ": " + places.get(place).format(formatter)+"\n");
-                }
 
-                skyTalk.output(finalPlaces.toString());
-                //System.out.print("\n");
+                    places = takeUserInput(input);
+                    StringBuilder finalPlaces = new StringBuilder();
+                    finalPlaces.append("Final Places and dates:\n");
+                    for (String place : places.keySet()) {
+                        finalPlaces.append("  " + place + ": " + places.get(place).format(formatter) + "\n");
+                    }
 
-                skyTalk.output(generateResponse(places));
+                    skyTalk.output(finalPlaces.toString());
+                    skyTalk.output(generateResponse(places));
+                    skyTalk.output("Type \"exit\" or enter new locations to continue\n"
+                            + "(For example: London 25/06/2024, Paris 26/06/2024, Rome 27/06/2024):");
 
-                skyTalk.output("Type \"exit\" or enter new locations to continue\n"
-                        + "(For example: London 25/06/2024, Paris 26/06/2024, Rome 27/06/2024):");
             }
         }
     }
@@ -130,8 +127,6 @@ class ChatBot {
 
             // Format them into year-month-day format
             String formattedDate = String.format("%04d-%02d-%02d", year, month, day);
-
-
             HashMap<String, Double> weatherData = weather.getForecast(coordinates, formattedDate);
 
             double minTemp = weatherData.get("min_temp");
@@ -148,8 +143,6 @@ class ChatBot {
 
             builder.append("cloud cover: " + weatherData.get("cloud_cover") + "%\n");
             builder.append("precipitation: " + weatherData.get("precipitation") + "cm\n");
-
-
 
             String clothingPlan = ClothingRecommendation.generateClothingPlan(minTemp,maxTemp,umbrellaNeeded,sunglassesNeeded);
             builder.append(clothingPlan);
