@@ -6,7 +6,8 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 public class CurrentLocation {
-    public static String getCurrentLocation() {
+
+    public static String getCurrentCity() {
         try {
             URL url = new URL("https://ipinfo.io/json");
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -17,11 +18,11 @@ public class CurrentLocation {
             }
             reader.close();
 
-            // Parse JSON response to get location
+            // Parse JSON response to get city name
             String jsonResponse = response.toString();
             String[] lines = jsonResponse.split("\n");
             for (String l : lines) {
-                if (l.contains("loc")) {
+                if (l.contains("city")) {
                     return l.split(":")[1].replace("\"", "").trim();
                 }
             }
@@ -33,7 +34,7 @@ public class CurrentLocation {
     }
 
     public static void main(String[] args) {
-        String location = getCurrentLocation();
-        System.out.println("Current location: " + location);
+        String city = getCurrentCity();
+        System.out.println("Current city: " + city);
     }
 }
