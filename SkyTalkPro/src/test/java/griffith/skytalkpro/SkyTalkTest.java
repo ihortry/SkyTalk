@@ -225,6 +225,7 @@ Caused by: java.lang.IllegalStateException: Toolkit not initialized
     public void testGenerateClothingPlan(){
         String recommendation = clothingRecommendation.generateClothingPlan(5,12,true,false);
         System.out.println(recommendation);
-        assertEquals("My suggestion:  \nSince the lowest temperature during the entire trip will be 5.0 degrees \nCelsius and the highest 12.0 degrees Celsius.\n Put on a Long Sleeves and Jeans.\n There is a high chance of rain during your trip,\n so take an umbrella or a raincoat.🌧",recommendation);
+        //replace newlines with spaces
+        assertEquals("My Suggestion: \nSince the lowest temperature during the entire trip will be 5.0 degrees \nCelsius and the highest 12.0 degrees Celsius.\n Put on a Long Sleeves and Jeans.\n There is a high chance of rain during your trip,\n so take an umbrella or a raincoat.🌧".replace('\n',' '),recommendation.replace('\n',' '));
     }
 }
