@@ -85,20 +85,6 @@ class ChatBot {
             }
             skyTalk.output(placesAndDates.toString());
             validInput = true;
-            //    if (places.size() >= MAXPLACES) {
-            //        output("Maximum number of places reached.");
-            //        validInput = true;
-            //    } else {
-            //        output("Do you want to add more places? (yes/no)");
-
-            //        String moreInput = input();
-            //        if (!moreInput.equals("yes")) {
-            //            validInput = true;
-            //        } else {
-            //            output("Enter place you plan to visit and date: ");
-            //            input = input();
-            //        }
-            //    }
         }
 
         return places;
