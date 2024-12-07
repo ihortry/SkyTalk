@@ -1,29 +1,25 @@
 package griffith.skytalkpro;
+
+import griffith.skytalkpro.model.Place;
+import griffith.skytalkpro.model.WeatherData;
 import javafx.application.Platform;
 import javafx.scene.layout.VBox;
+
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
-// Class representing the ChatBot logic
 class ChatBot {
-    private static HashMap<String, LocalDate> places = new HashMap<>();
-    private static final int MAXPLACES = 5;
-    // Default values
-    private static double minTemperature = 100;
-    private static double maxTemperature = 0;
-    private static boolean umbrellaIsNeeded = false;
-    private static boolean sunglassesIsNeeded = false;
-    //private static Scanner scanner = new Scanner(System.in);
-    private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static Weather weather;
-    //public String lastInput;
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private VBox chatPane;
     private SkyTalk skyTalk;
+ 
 
-    public ChatBot(VBox chatPane) {
+    public ChatBot(VBox chatPane, SkyTalk skyTalk) {
         this.chatPane = chatPane;
+        this.skyTalk = skyTalk; // Initialize SkyTalk reference
     }
 
     public void run() throws ParseException, org.json.simple.parser.ParseException {
@@ -32,109 +28,107 @@ class ChatBot {
 
         while (true) {
             input = skyTalk.input();
-            System.out.println(skyTalk.isOptionSelected());
             if (input.equalsIgnoreCase("exit")) {
                 skyTalk.output("Exiting SkyTalk Chatbot. Have a great day!");
-                Platform.exit(); // Terminate the JavaFX application
+                Platform.exit();
                 break;
             } else {
+                List<Place> places = takeUserInput(input);
+                skyTalk.output("Final Places and dates:\n" + places);
 
-                    places = takeUserInput(input);
-                    StringBuilder finalPlaces = new StringBuilder();
-                    finalPlaces.append("Final Places and dates:\n");
-                    for (String place : places.keySet()) {
-                        finalPlaces.append("  " + place + ": " + places.get(place).format(formatter) + "\n");
-                    }
+                String response = generateResponse(places);
+                skyTalk.output(response);
 
-                    skyTalk.output(finalPlaces.toString());
-                    skyTalk.output(generateResponse(places));
-                    skyTalk.output("Type \"exit\" or enter new locations to continue\n"
-                            + "(For example: London 25/06/2024, Paris 26/06/2024, Rome 27/06/2024):");
-
+                skyTalk.output("Type \"exit\" or enter new locations to continue\n"
+                        + "(For example: London 25/06/2024, Paris 26/06/2024, Rome 27/06/2024):");
             }
         }
     }
 
-    public  HashMap<String, LocalDate> takeUserInput(String input) {
-        places = new HashMap<>();
-        boolean validInput = false;
-        while (!validInput) {
+    public List<Place> takeUserInput(String input) {
+        List<Place> places = new ArrayList<>();
+        String[] data = input.split(",");
 
-            String[] data = input.split(",");
-
-            for (String placeWithDate : data) {
-                String[] placeInfo = placeWithDate.trim().split(" ");
-                //if placeInfo isnt an array size two [place, date]
-                if (placeInfo.length != 2) {
-                    skyTalk.output("Invalid input format. Please enter place and date separated by a space.");
-                    continue;
-                }
-                String placeName = placeInfo[0];
-                String dateOfVisit = placeInfo[1];
+        for (String placeWithDate : data) {
+            String[] placeInfo = placeWithDate.trim().split(" ");
+            if (placeInfo.length == 2) {
                 try {
-                    LocalDate date = LocalDate.parse(dateOfVisit, formatter);
-                    places.put(placeName, date);
+                    String placeName = placeInfo[0];
+                    LocalDate date = LocalDate.parse(placeInfo[1], formatter);
+                    places.add(new Place(placeName, date));
                 } catch (Exception e) {
-                    skyTalk.output("Invalid date format for " + placeName + ". Please enter date in format dd/MM/yyyy.");
+                    skyTalk.output("Invalid input format or date. Please use the format: Place DD/MM/YYYY.");
                 }
+            } else {
+                skyTalk.output("Invalid input format. Use: Place DD/MM/YYYY.");
             }
-            StringBuilder placesAndDates = new StringBuilder();
-            placesAndDates.append("Places and dates:\n");
-            for (String place : places.keySet()) {
-                placesAndDates.append(" " + place + ": " + places.get(place).format(formatter) + "\n");
-            }
-            skyTalk.output(placesAndDates.toString());
-            validInput = true;
         }
-
         return places;
     }
 
-    public String generateResponse(HashMap<String, LocalDate> places) throws ParseException, org.json.simple.parser.ParseException {
-        // Reset variables
-        minTemperature = 100;
-        maxTemperature = 0;
-        umbrellaIsNeeded = false;
-        sunglassesIsNeeded = false;
-
+    public String generateResponse(List<Place> places) {
         StringBuilder builder = new StringBuilder();
-        // for each city in the hashmap, get its coordinates
-        for (String city : places.keySet()) {
-            builder.append("PLAN FOR: " + city);
-            double[] coordinates = weather.cityToCoordinate(city);
 
-            LocalDate time = places.get(city);
-            //long timeUnix = time.toInstant().atZone(ZoneId.of(timezoneFromCoordinate(coordinates))).toEpochSecond();
+        for (Place place : places) {
+            try {
+                builder.append("Plan for ").append(place.getName()).append(" on ").append(place.getDate()).append(":\n");
 
-            // Get year, month, and day
-            int year = time.getYear();
-            int month = time.getMonthValue();
-            int day = time.getDayOfMonth();
+                // Fetch coordinates
+                double[] coordinates = Weather.cityToCoordinate(place.getName());
+                if (coordinates == null) {
+                    builder.append("Unable to fetch coordinates for ").append(place.getName()).append(".\n");
+                    continue;
+                }
 
-            // Format them into year-month-day format
-            String formattedDate = String.format("%04d-%02d-%02d", year, month, day);
-            HashMap<String, Double> weatherData = weather.getForecast(coordinates, formattedDate);
+                // Fetch weather data
+                WeatherData weatherData = Weather.getForecastData(coordinates, place.getDate().toString());
+                if (weatherData == null) {
+                    builder.append("Unable to fetch weather data for ").append(place.getName()).append(".\n");
+                    continue;
+                }
 
-            double minTemp = weatherData.get("min_temp");
-            double maxTemp = weatherData.get("max_temp");
+                builder.append(weatherData.toString()).append("\n");
 
-            //if rainfall above 5cm, recommend umbrella
-            //if cloud cover below 10%, recommend sunglasses
-            boolean umbrellaNeeded = weatherData.get("precipitation") > 5;
-            boolean sunglassesNeeded = weatherData.get("cloud_cover")<10;
+                // Generate clothing recommendations
+                boolean umbrellaNeeded = weatherData.getPrecipitation() > 5;
+                boolean sunglassesNeeded = weatherData.getCloudCover() < 10;
+                builder.append(ClothingRecommendation.generateClothingPlan(
+                        weatherData.getMinTemp(),
+                        weatherData.getMaxTemp(),
+                        umbrellaNeeded,
+                        sunglassesNeeded
+                )).append("\n");
 
-            builder.append("temperature for " + city + " at " + time + ": \n");
-            builder.append("minimum temperature: " + weatherData.get("min_temp") + "C | ");
-            builder.append("maximum temperature: " + weatherData.get("max_temp") + "C \n");
-
-            builder.append("cloud cover: " + weatherData.get("cloud_cover") + "%\n");
-            builder.append("precipitation: " + weatherData.get("precipitation") + "cm\n");
-
-            String clothingPlan = ClothingRecommendation.generateClothingPlan(minTemp,maxTemp,umbrellaNeeded,sunglassesNeeded);
-            builder.append(clothingPlan);
-            builder.append("\n");
+            } catch (Exception e) {
+                builder.append("An error occurred for ").append(place.getName()).append(": ").append(e.getMessage()).append("\n");
+            }
         }
-        return builder.toString();
 
+        return builder.toString();
     }
+    public void runForCurrentLocation(double[] coordinates) {
+        try {
+            // Assuming today's date for current location suggestions
+            String currentDate = LocalDate.now().toString();
+            WeatherData weatherData = Weather.getForecastData(coordinates, currentDate);
+            if (weatherData != null) {
+                skyTalk.output("Weather Suggestions for Your Current Location:\n" + weatherData.toString());
+
+                boolean umbrellaNeeded = weatherData.getPrecipitation() > 5;
+                boolean sunglassesNeeded = weatherData.getCloudCover() < 10;
+                skyTalk.output(ClothingRecommendation.generateClothingPlan(
+                        weatherData.getMinTemp(),
+                        weatherData.getMaxTemp(),
+                        umbrellaNeeded,
+                        sunglassesNeeded
+                ));
+            } else {
+                skyTalk.output("Unable to fetch weather data for your current location.");
+            }
+        } catch (Exception e) {
+            skyTalk.output("An error occurred while fetching weather data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

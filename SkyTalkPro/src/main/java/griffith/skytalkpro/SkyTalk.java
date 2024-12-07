@@ -36,10 +36,10 @@ import java.util.List;
 */
 public class SkyTalk extends Application {
     private static VBox chatPane = new VBox();
-    private ChatBot chatbot = new ChatBot(chatPane);
+    private ChatBot chatbot = new ChatBot(chatPane, this);
     private static String lastInput;
     private Boolean optionSelected = false;
-
+    
     private TextField inputField = new TextField();
 
     /*
@@ -53,7 +53,7 @@ public class SkyTalk extends Application {
     	/*
     	 * An instance of the chatBot
     	 */
-        ChatBot chatbot = new ChatBot(chatPane);
+        ChatBot chatbot = new ChatBot(chatPane, this);
         BorderPane root = new BorderPane();
 
         /*
@@ -137,17 +137,30 @@ public class SkyTalk extends Application {
             optionButton.setOnMouseEntered(e -> optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #45a049, #4CAF50); -fx-text-fill: white; -fx-background-radius: 10;"));
             optionButton.setOnMouseExited(e -> optionButton.setStyle("-fx-font-family: 'Arial'; -fx-font-size: 12pt; -fx-background-color: linear-gradient(to bottom, #4CAF50, #45a049); -fx-text-fill: white; -fx-background-radius: 10;"));
             optionButton.setOnAction(event -> {
-                setOption();
-                inputField.setText(option);
-                try {
-                    sendMessage(chatPane, inputField);
-                } catch (ParseException e1) {
-                    e1.printStackTrace();
-                } catch (java.text.ParseException e1) {
-                    e1.printStackTrace();
+                if (option.equals("Get suggestions \nfor current location")) {
+                    try {
+                        double[] coordinates = CurrentLocation.getLocationFromIP();
+                        if (coordinates != null) {
+                            chatbot.runForCurrentLocation(coordinates);
+                        } else {
+                            output("Unable to fetch current location. Please check your internet connection.");
+                        }
+                    } catch (Exception e) {
+                        output("An error occurred while fetching your current location: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                } else {
+                    setOption();
+                    inputField.setText(option);
+                    try {
+                        sendMessage(chatPane, inputField);
+                    } catch (ParseException | java.text.ParseException e1) {
+                        e1.printStackTrace();
+                    }
                 }
-                String input;
             });
+
+            
 
             /*
              * Add margin to the option button
@@ -156,7 +169,7 @@ public class SkyTalk extends Application {
 
             optionsBox.getChildren().add(optionButton);
         }
-
+        
         /*
          * Add input field and send button to the input box
          */
@@ -174,7 +187,9 @@ public class SkyTalk extends Application {
          * Create the scene and set it to the stage
          */
         Scene scene = new Scene(root, 500, 400);
-        scene.getStylesheets().add(getClass().getResource("styles.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/griffith/skytalkpro/styles.css").toExternalForm());
+
+
         primaryStage.setTitle("Impressive ChatBot");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -182,7 +197,7 @@ public class SkyTalk extends Application {
         output("Enter up to 5 places you plan to visit and dates to plan your clothing requirements.");
         output("For example: London 25/06/2024, Paris 26/06/2024, Rome 27/06/2024");
     }
-
+    
     /**
      * Method that set option
      */
@@ -202,10 +217,18 @@ public class SkyTalk extends Application {
      * Method that handle user input
      * @param inputField
      */
-    public void handleInput(TextField inputField){
-        lastInput = inputField.getText();
+    public void handleInput(TextField inputField) {
+        String inputText = inputField.getText().trim();
+        if (inputText.isEmpty()) {
+            System.out.println("Input is empty.");
+//            inputText= "Dublin 12/4/2024";
+            return;
+            // Do not set `lastInput` if the input is empty
+        }
+        lastInput = inputText;
         System.out.println("Handle " + lastInput);
     }
+
 
     /** Method send message that send message to chat panel 
      * @param chatPane
@@ -228,7 +251,7 @@ public class SkyTalk extends Application {
     }
 
     /** Method to get an input
-     *  @return
+     *  @return CurrentLocation
      */
     public static String input() {
         String temp = new String(lastInput);

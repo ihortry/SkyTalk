@@ -1,57 +1,49 @@
 package griffith.skytalkpro;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 public class CurrentLocation {
 
-    public static void main(String[] args) {
+    public static double[] getLocationFromIP() {
         try {
+            String url = "https://ipapi.co/json/";
+            System.out.println("Connecting to: " + url);
+            
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setRequestMethod("GET");
 
-            String ipAddress = getCurrentIPAddress();
-            Map<String, String> locationInfo = getLocationInfo(ipAddress);
-            String cityName = locationInfo.get("city");
-            System.out.println("Current City: " + cityName);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    private static String getCurrentIPAddress() throws IOException {
-        URL url = new URL("https://api.ipify.org");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
-        String ipAddress = reader.readLine();
-        reader.close();
-        return ipAddress;
-    }
-    private static Map<String, String> getLocationInfo(String ipAddress) throws IOException {
-        URL url = new URL("https://ipinfo.io/" + ipAddress + "/json");
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.connect();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        StringBuilder response = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
-        }
-        reader.close();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
 
-        Map<String, String> locationInfo = new HashMap<>();
-        String[] parts = response.toString().split(",");
-        for (String part : parts) {
-            String[] keyValue = part.split(":");
-            if (keyValue.length == 2) {
-                String key = keyValue[0].replaceAll("\"", "").trim();
-                String value = keyValue[1].replaceAll("\"", "").trim();
-                locationInfo.put(key, value);
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
             }
+
+            reader.close();
+            System.out.println("Response received: " + response);
+
+            JSONObject json = (JSONObject) new JSONParser().parse(response.toString());
+            if (json.containsKey("latitude") && json.containsKey("longitude")) {
+                double latitude = Double.parseDouble(json.get("latitude").toString());
+                double longitude = Double.parseDouble(json.get("longitude").toString());
+                System.out.println("Parsed coordinates: " + latitude + ", " + longitude);
+                return new double[]{latitude, longitude};
+            } else {
+                System.err.println("Invalid response: Missing latitude/longitude keys.");
+                return null;
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching location: " + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
-        return locationInfo;
     }
 }
+
 
 

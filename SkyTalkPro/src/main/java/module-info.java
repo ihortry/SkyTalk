@@ -12,6 +12,7 @@ module griffith.skytalkpro {
     requires com.almasb.fxgl.all;
 	requires json.simple;
     requires com.fasterxml.jackson.databind;
+	requires java.dotenv;
 
     opens griffith.skytalkpro to javafx.fxml;
     exports griffith.skytalkpro;

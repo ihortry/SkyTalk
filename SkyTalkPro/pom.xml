@@ -21,7 +21,12 @@
             <version>20240303</version>
         </dependency>
 	
-
+		<dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>5.10.0</version>
+    <scope>test</scope>
+</dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -33,6 +38,11 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.12.0</version>
         </dependency>
+		<dependency>
+    		<groupId>io.github.cdimascio</groupId>
+    		<artifactId>java-dotenv</artifactId>
+    		<version>5.2.2</version>
+		</dependency>
 
 
         <dependency>
@@ -51,6 +61,12 @@
             <version>1.2.6</version>
             <!--  Or latest version  -->
         </dependency>
+		<!-- Add to pom.xml -->
+		<dependency>
+		    <groupId>com.github.ben-manes.caffeine</groupId>
+		    <artifactId>caffeine</artifactId>
+		    <version>3.0.5</version>
+		</dependency>
 
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -104,6 +120,33 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <!-- JUnit 5 -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.0</version>
+        <scope>test</scope>
+    </dependency>
+	<dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-core</artifactId>
+    <version>5.5.0</version>
+    <scope>test</scope>
+</dependency>
+
+    <!-- TestFX for JavaFX testing (optional if JavaFX is used) -->
+    <dependency>
+        <groupId>org.testfx</groupId>
+        <artifactId>testfx-core</artifactId>
+        <version>4.0.16-alpha</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.testfx</groupId>
+        <artifactId>testfx-junit5</artifactId>
+        <version>4.0.16-alpha</version>
+        <scope>test</scope>
+    </dependency>
         <dependency>
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-javafx</artifactId>
@@ -178,6 +221,16 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+        	<groupId>com.ihorTryndey</groupId>
+        	<artifactId>learn-spring-boot</artifactId>
+        	<version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+        	<groupId>com.IhorTryndey</groupId>
+        	<artifactId>MockitoSetup</artifactId>
+        	<version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -207,10 +260,12 @@
                             <noManPages>true</noManPages>
                             <stripDebug>true</stripDebug>
                             <noHeaderFiles>true</noHeaderFiles>
+                             <include>**/*Test.java</include>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+    
 </project>
